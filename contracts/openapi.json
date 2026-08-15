@@ -249,6 +249,116 @@
           "households"
         ]
       }
+    },
+    "/v1/households/{householdId}/imports": {
+      "post": {
+        "operationId": "ImportsController_create",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateImportDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "imports"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/imports/{id}": {
+      "get": {
+        "operationId": "ImportsController_get",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "imports"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/imports/{id}/cancel": {
+      "post": {
+        "operationId": "ImportsController_cancel",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "imports"
+        ]
+      }
     }
   },
   "info": {
@@ -429,6 +539,28 @@
         },
         "required": [
           "code"
+        ]
+      },
+      "CreateImportDto": {
+        "type": "object",
+        "properties": {
+          "sourceKind": {
+            "type": "string",
+            "enum": [
+              "url",
+              "text",
+              "image",
+              "audio",
+              "video"
+            ]
+          },
+          "sourceInput": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceKind",
+          "sourceInput"
         ]
       }
     }

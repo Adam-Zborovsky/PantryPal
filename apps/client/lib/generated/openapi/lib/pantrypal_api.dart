@@ -12,9 +12,11 @@ export 'package:pantrypal_api/src/model/date.dart';
 
 export 'package:pantrypal_api/src/api/auth_api.dart';
 export 'package:pantrypal_api/src/api/households_api.dart';
+export 'package:pantrypal_api/src/api/imports_api.dart';
 
 export 'package:pantrypal_api/src/model/account_response_dto.dart';
 export 'package:pantrypal_api/src/model/auth_session_response_dto.dart';
+export 'package:pantrypal_api/src/model/create_import_dto.dart';
 export 'package:pantrypal_api/src/model/household_response_dto.dart';
 export 'package:pantrypal_api/src/model/join_household_dto.dart';
 export 'package:pantrypal_api/src/model/login_dto.dart';

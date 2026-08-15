@@ -16,6 +16,7 @@ import 'package:pantrypal_api/src/model/date.dart';
 
 import 'package:pantrypal_api/src/model/account_response_dto.dart';
 import 'package:pantrypal_api/src/model/auth_session_response_dto.dart';
+import 'package:pantrypal_api/src/model/create_import_dto.dart';
 import 'package:pantrypal_api/src/model/household_response_dto.dart';
 import 'package:pantrypal_api/src/model/join_household_dto.dart';
 import 'package:pantrypal_api/src/model/login_dto.dart';
@@ -27,6 +28,7 @@ part 'serializers.g.dart';
 @SerializersFor([
   AccountResponseDto,
   AuthSessionResponseDto,
+  CreateImportDto,
   HouseholdResponseDto,
   JoinHouseholdDto,
   LoginDto,

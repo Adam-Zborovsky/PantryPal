@@ -74,12 +74,16 @@ Class | Method | HTTP request | Description
 [*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerList**](doc/HouseholdsApi.md#householdscontrollerlist) | **GET** /v1/households | 
 [*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerMembers**](doc/HouseholdsApi.md#householdscontrollermembers) | **GET** /v1/households/{householdId}/members | 
 [*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerRotateCode**](doc/HouseholdsApi.md#householdscontrollerrotatecode) | **POST** /v1/households/{householdId}/invite-code/rotate | 
+[*ImportsApi*](doc/ImportsApi.md) | [**importsControllerCancel**](doc/ImportsApi.md#importscontrollercancel) | **POST** /v1/households/{householdId}/imports/{id}/cancel | 
+[*ImportsApi*](doc/ImportsApi.md) | [**importsControllerCreate**](doc/ImportsApi.md#importscontrollercreate) | **POST** /v1/households/{householdId}/imports | 
+[*ImportsApi*](doc/ImportsApi.md) | [**importsControllerGet**](doc/ImportsApi.md#importscontrollerget) | **GET** /v1/households/{householdId}/imports/{id} | 
 
 
 ## Documentation For Models
 
  - [AccountResponseDto](doc/AccountResponseDto.md)
  - [AuthSessionResponseDto](doc/AuthSessionResponseDto.md)
+ - [CreateImportDto](doc/CreateImportDto.md)
  - [HouseholdResponseDto](doc/HouseholdResponseDto.md)
  - [JoinHouseholdDto](doc/JoinHouseholdDto.md)
  - [LoginDto](doc/LoginDto.md)

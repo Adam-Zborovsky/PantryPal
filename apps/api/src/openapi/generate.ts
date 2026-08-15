@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from '../app.module';
 import { AuthModule } from '../auth/auth.module';
 import { HouseholdsModule } from '../households/households.module';
+import { ImportsModule } from '../imports/imports.module';
 
 async function generate() {
   const app = await NestFactory.create(AppModule, { logger: false });
@@ -18,7 +19,7 @@ async function generate() {
       .setVersion('1.0.0')
       .addBearerAuth()
       .build(),
-    { include: [AuthModule, HouseholdsModule], deepScanRoutes: true },
+    { include: [AuthModule, HouseholdsModule, ImportsModule], deepScanRoutes: true },
   );
   writeFileSync(resolve(process.cwd(), '../../contracts/openapi.json'), `${JSON.stringify(document, null, 2)}\n`);
   await app.close();

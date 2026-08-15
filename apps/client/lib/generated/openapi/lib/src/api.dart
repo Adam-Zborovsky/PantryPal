@@ -11,6 +11,7 @@ import 'package:pantrypal_api/src/auth/bearer_auth.dart';
 import 'package:pantrypal_api/src/auth/oauth.dart';
 import 'package:pantrypal_api/src/api/auth_api.dart';
 import 'package:pantrypal_api/src/api/households_api.dart';
+import 'package:pantrypal_api/src/api/imports_api.dart';
 
 class PantrypalApi {
   static const String basePath = r'http://localhost';
@@ -116,5 +117,11 @@ class PantrypalApi {
   /// by doing that all interceptors will not be executed
   HouseholdsApi getHouseholdsApi() {
     return HouseholdsApi(dio, serializers);
+  }
+
+  /// Get ImportsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ImportsApi getImportsApi() {
+    return ImportsApi(dio, serializers);
   }
 }
