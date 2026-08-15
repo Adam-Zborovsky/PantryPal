@@ -4,7 +4,7 @@ PantryPal is an invite-only household recipe planner for Android and responsive 
 
 ## Current foundation
 
-The repository contains the Flutter Material 3 shell, visual system, NestJS operational baseline, validated Prisma data contract, generated OpenAPI contract, and CI checks. Identity, import, planning, shopping, archive, and push domain workflows are implemented in subsequent phases.
+The repository contains a Flutter identity/home flow, invite-only auth and households, a generated API contract, and a queued webpage-recipe import foundation. A public recipe URL becomes a review-only recipe draft with source evidence when the separately started worker is running. Planning, shopping, pantry, archive, and push workflows remain in progress.
 
 ## Prerequisites
 
@@ -38,6 +38,19 @@ No Dockerfiles, Compose files, proxy configuration, or deployment automation bel
 | Contract generation | `npm run contract:generate` from `apps/api` |
 | Dart client regeneration | `npm run client:generate` from `apps/api` |
 | Contract drift check | `npm run contract:check` from `apps/api` |
+
+## First local test
+
+1. Confirm the operator-provided PostgreSQL, Redis, and MinIO containers are running (`docker ps`).
+2. In one terminal, run `npm run start:dev` from `apps/api`.
+3. In a second terminal, run `npm run start:worker` from `apps/api`.
+4. Create a beta token with `npm run cli -- beta-invite` and keep its one-time output.
+5. Run the Flutter client. For web, use
+   `E:/flutter/bin/flutter.bat run -d chrome --dart-define=API_BASE_URL=http://localhost:3000/v1`.
+   For an Android emulator, use `http://10.0.2.2:3000/v1` instead.
+6. Create an account using the beta token, then use **Import a recipe** on Home
+   with a public recipe-page URL. The worker creates a review draft; unsupported
+   sources return an explicit job failure rather than pretending to succeed.
 
 ## Architecture
 
