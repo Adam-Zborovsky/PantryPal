@@ -14,6 +14,9 @@ import 'package:built_value/iso_8601_date_time_serializer.dart';
 import 'package:pantrypal_api/src/date_serializer.dart';
 import 'package:pantrypal_api/src/model/date.dart';
 
+import 'package:pantrypal_api/src/model/account_response_dto.dart';
+import 'package:pantrypal_api/src/model/auth_session_response_dto.dart';
+import 'package:pantrypal_api/src/model/household_response_dto.dart';
 import 'package:pantrypal_api/src/model/join_household_dto.dart';
 import 'package:pantrypal_api/src/model/login_dto.dart';
 import 'package:pantrypal_api/src/model/refresh_dto.dart';
@@ -22,6 +25,9 @@ import 'package:pantrypal_api/src/model/register_dto.dart';
 part 'serializers.g.dart';
 
 @SerializersFor([
+  AccountResponseDto,
+  AuthSessionResponseDto,
+  HouseholdResponseDto,
   JoinHouseholdDto,
   LoginDto,
   RefreshDto,

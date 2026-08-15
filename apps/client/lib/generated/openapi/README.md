@@ -51,7 +51,8 @@ final api = PantrypalApi().getAuthApi();
 final LoginDto loginDto = ; // LoginDto | 
 
 try {
-    api.authControllerLogin(loginDto);
+    final response = await api.authControllerLogin(loginDto);
+    print(response);
 } on DioException catch (e) {
     print("Exception when calling AuthApi->authControllerLogin: $e\n");
 }
@@ -77,6 +78,9 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
+ - [AccountResponseDto](doc/AccountResponseDto.md)
+ - [AuthSessionResponseDto](doc/AuthSessionResponseDto.md)
+ - [HouseholdResponseDto](doc/HouseholdResponseDto.md)
  - [JoinHouseholdDto](doc/JoinHouseholdDto.md)
  - [LoginDto](doc/LoginDto.md)
  - [RefreshDto](doc/RefreshDto.md)

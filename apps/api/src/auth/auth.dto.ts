@@ -63,6 +63,26 @@ export class RefreshDto {
   client?: 'web' | 'android';
 }
 
+export class AccountResponseDto {
+  @ApiProperty() id!: string;
+  @ApiProperty() email!: string;
+  @ApiProperty() displayName!: string;
+}
+
+export class HouseholdResponseDto {
+  @ApiProperty() id!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty() timezone!: string;
+}
+
+export class AuthSessionResponseDto {
+  @ApiProperty() accessToken!: string;
+  @ApiPropertyOptional({ description: 'Returned only to Android clients.' }) refreshToken?: string;
+  @ApiPropertyOptional({ type: AccountResponseDto }) account?: AccountResponseDto;
+  @ApiPropertyOptional({ type: HouseholdResponseDto }) household?: HouseholdResponseDto;
+  @ApiPropertyOptional({ description: 'Returned only immediately after registration.' }) householdCode?: string;
+}
+
 export class CreateBetaInviteDto {
   @ApiPropertyOptional({ example: 14 })
   @IsOptional()

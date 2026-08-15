@@ -16,7 +16,7 @@ Method | HTTP request | Description
 
 
 # **authControllerLogin**
-> authControllerLogin(loginDto)
+> AuthSessionResponseDto authControllerLogin(loginDto)
 
 
 
@@ -28,7 +28,8 @@ final api = PantrypalApi().getAuthApi();
 final LoginDto loginDto = ; // LoginDto | 
 
 try {
-    api.authControllerLogin(loginDto);
+    final response = api.authControllerLogin(loginDto);
+    print(response);
 } on DioException catch (e) {
     print('Exception when calling AuthApi->authControllerLogin: $e\n');
 }
@@ -42,7 +43,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-void (empty response body)
+[**AuthSessionResponseDto**](AuthSessionResponseDto.md)
 
 ### Authorization
 
@@ -51,7 +52,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -96,7 +97,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **authControllerRefresh**
-> authControllerRefresh(refreshDto)
+> AuthSessionResponseDto authControllerRefresh(refreshDto)
 
 
 
@@ -108,7 +109,8 @@ final api = PantrypalApi().getAuthApi();
 final RefreshDto refreshDto = ; // RefreshDto | 
 
 try {
-    api.authControllerRefresh(refreshDto);
+    final response = api.authControllerRefresh(refreshDto);
+    print(response);
 } on DioException catch (e) {
     print('Exception when calling AuthApi->authControllerRefresh: $e\n');
 }
@@ -122,7 +124,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-void (empty response body)
+[**AuthSessionResponseDto**](AuthSessionResponseDto.md)
 
 ### Authorization
 
@@ -131,12 +133,12 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **authControllerRegister**
-> authControllerRegister(registerDto)
+> AuthSessionResponseDto authControllerRegister(registerDto)
 
 
 
@@ -148,7 +150,8 @@ final api = PantrypalApi().getAuthApi();
 final RegisterDto registerDto = ; // RegisterDto | 
 
 try {
-    api.authControllerRegister(registerDto);
+    final response = api.authControllerRegister(registerDto);
+    print(response);
 } on DioException catch (e) {
     print('Exception when calling AuthApi->authControllerRegister: $e\n');
 }
@@ -162,7 +165,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-void (empty response body)
+[**AuthSessionResponseDto**](AuthSessionResponseDto.md)
 
 ### Authorization
 
@@ -171,7 +174,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

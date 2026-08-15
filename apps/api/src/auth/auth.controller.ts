@@ -3,7 +3,7 @@ import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { AuthService } from './auth.service';
-import { LoginDto, RefreshDto, RegisterDto } from './auth.dto';
+import { AuthSessionResponseDto, LoginDto, RefreshDto, RegisterDto } from './auth.dto';
 
 const refreshCookie = 'pantrypal_refresh';
 const csrfCookie = 'pantrypal_csrf';
@@ -14,7 +14,7 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post('register')
-  @ApiCreatedResponse({ description: 'Account and first household created.' })
+  @ApiCreatedResponse({ description: 'Account and first household created.', type: AuthSessionResponseDto })
   async register(@Body() input: RegisterDto, @Res({ passthrough: true }) response: Response) {
     const result = await this.auth.register(input);
     return this.respondWithSession(result, input.client ?? 'web', response);
@@ -22,7 +22,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  @ApiOkResponse({ description: 'Session established.' })
+  @ApiOkResponse({ description: 'Session established.', type: AuthSessionResponseDto })
   async login(@Body() input: LoginDto, @Res({ passthrough: true }) response: Response) {
     const result = await this.auth.login(input);
     return this.respondWithSession(result, input.client ?? 'web', response);
@@ -30,6 +30,7 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(200)
+  @ApiOkResponse({ type: AuthSessionResponseDto })
   async refresh(@Body() input: RefreshDto, @Req() request: Request, @Res({ passthrough: true }) response: Response) {
     const client = input.client ?? 'web';
     this.requireCsrf(request, client);

@@ -8,6 +8,7 @@ import 'package:built_value/json_object.dart';
 import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
+import 'package:pantrypal_api/src/model/auth_session_response_dto.dart';
 import 'package:pantrypal_api/src/model/login_dto.dart';
 import 'package:pantrypal_api/src/model/refresh_dto.dart';
 import 'package:pantrypal_api/src/model/register_dto.dart';
@@ -32,9 +33,9 @@ class AuthApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future]
+  /// Returns a [Future] containing a [Response] with a [AuthSessionResponseDto] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> authControllerLogin({ 
+  Future<Response<AuthSessionResponseDto>> authControllerLogin({ 
     required LoginDto loginDto,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -84,7 +85,35 @@ class AuthApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    return _response;
+    AuthSessionResponseDto? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(AuthSessionResponseDto),
+      ) as AuthSessionResponseDto;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<AuthSessionResponseDto>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
   }
 
   /// authControllerLogout
@@ -166,9 +195,9 @@ class AuthApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future]
+  /// Returns a [Future] containing a [Response] with a [AuthSessionResponseDto] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> authControllerRefresh({ 
+  Future<Response<AuthSessionResponseDto>> authControllerRefresh({ 
     required RefreshDto refreshDto,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -218,7 +247,35 @@ class AuthApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    return _response;
+    AuthSessionResponseDto? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(AuthSessionResponseDto),
+      ) as AuthSessionResponseDto;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<AuthSessionResponseDto>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
   }
 
   /// authControllerRegister
@@ -233,9 +290,9 @@ class AuthApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future]
+  /// Returns a [Future] containing a [Response] with a [AuthSessionResponseDto] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> authControllerRegister({ 
+  Future<Response<AuthSessionResponseDto>> authControllerRegister({ 
     required RegisterDto registerDto,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -285,7 +342,35 @@ class AuthApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    return _response;
+    AuthSessionResponseDto? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(AuthSessionResponseDto),
+      ) as AuthSessionResponseDto;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<AuthSessionResponseDto>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
   }
 
 }

@@ -17,7 +17,14 @@
         },
         "responses": {
           "201": {
-            "description": "Account and first household created."
+            "description": "Account and first household created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -41,7 +48,14 @@
         },
         "responses": {
           "200": {
-            "description": "Session established."
+            "description": "Session established.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -65,7 +79,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -291,6 +312,69 @@
           "displayName",
           "betaInvite",
           "householdName"
+        ]
+      },
+      "AccountResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "displayName"
+        ]
+      },
+      "HouseholdResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "timezone"
+        ]
+      },
+      "AuthSessionResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Returned only to Android clients."
+          },
+          "account": {
+            "$ref": "#/components/schemas/AccountResponseDto"
+          },
+          "household": {
+            "$ref": "#/components/schemas/HouseholdResponseDto"
+          },
+          "householdCode": {
+            "type": "string",
+            "description": "Returned only immediately after registration."
+          }
+        },
+        "required": [
+          "accessToken"
         ]
       },
       "LoginDto": {
