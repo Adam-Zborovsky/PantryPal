@@ -47,12 +47,13 @@ Please follow the [installation procedure](#installation--usage) and then run th
 import 'package:pantrypal_api/pantrypal_api.dart';
 
 
-final api = PantrypalApi().getMetricsApi();
+final api = PantrypalApi().getAuthApi();
+final LoginDto loginDto = ; // LoginDto | 
 
 try {
-    api.metricsControllerMetrics();
+    api.authControllerLogin(loginDto);
 } on DioException catch (e) {
-    print("Exception when calling MetricsApi->metricsControllerMetrics: $e\n");
+    print("Exception when calling AuthApi->authControllerLogin: $e\n");
 }
 
 ```
@@ -63,13 +64,23 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-[*MetricsApi*](doc/MetricsApi.md) | [**metricsControllerMetrics**](doc/MetricsApi.md#metricscontrollermetrics) | **GET** /v1/metrics | 
-[*SystemApi*](doc/SystemApi.md) | [**healthControllerLive**](doc/SystemApi.md#healthcontrollerlive) | **GET** /v1/live | 
-[*SystemApi*](doc/SystemApi.md) | [**healthControllerReady**](doc/SystemApi.md#healthcontrollerready) | **GET** /v1/ready | 
+[*AuthApi*](doc/AuthApi.md) | [**authControllerLogin**](doc/AuthApi.md#authcontrollerlogin) | **POST** /v1/auth/login | 
+[*AuthApi*](doc/AuthApi.md) | [**authControllerLogout**](doc/AuthApi.md#authcontrollerlogout) | **POST** /v1/auth/logout | 
+[*AuthApi*](doc/AuthApi.md) | [**authControllerRefresh**](doc/AuthApi.md#authcontrollerrefresh) | **POST** /v1/auth/refresh | 
+[*AuthApi*](doc/AuthApi.md) | [**authControllerRegister**](doc/AuthApi.md#authcontrollerregister) | **POST** /v1/auth/register | 
+[*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerJoin**](doc/HouseholdsApi.md#householdscontrollerjoin) | **POST** /v1/households/join | 
+[*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerLeave**](doc/HouseholdsApi.md#householdscontrollerleave) | **POST** /v1/households/{householdId}/leave | 
+[*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerList**](doc/HouseholdsApi.md#householdscontrollerlist) | **GET** /v1/households | 
+[*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerMembers**](doc/HouseholdsApi.md#householdscontrollermembers) | **GET** /v1/households/{householdId}/members | 
+[*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerRotateCode**](doc/HouseholdsApi.md#householdscontrollerrotatecode) | **POST** /v1/households/{householdId}/invite-code/rotate | 
 
 
 ## Documentation For Models
 
+ - [JoinHouseholdDto](doc/JoinHouseholdDto.md)
+ - [LoginDto](doc/LoginDto.md)
+ - [RefreshDto](doc/RefreshDto.md)
+ - [RegisterDto](doc/RegisterDto.md)
 
 
 ## Documentation For Authorization

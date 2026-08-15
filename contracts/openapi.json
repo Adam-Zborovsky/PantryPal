@@ -1,45 +1,231 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/v1/live": {
-      "get": {
-        "operationId": "HealthController_live",
+    "/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
         "responses": {
-          "200": {
-            "description": "The API process is live."
+          "201": {
+            "description": "Account and first household created."
           }
         },
         "tags": [
-          "system"
+          "auth"
         ]
       }
     },
-    "/v1/ready": {
-      "get": {
-        "operationId": "HealthController_ready",
+    "/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "The API is ready to accept requests."
+            "description": "Session established."
           }
         },
         "tags": [
-          "system"
+          "auth"
         ]
       }
     },
-    "/v1/metrics": {
-      "get": {
-        "operationId": "MetricsController_metrics",
+    "/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
           }
         },
         "tags": [
-          "Metrics"
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/households": {
+      "get": {
+        "operationId": "HouseholdsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Active household memberships for the signed-in account."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "households"
+        ]
+      }
+    },
+    "/v1/households/join": {
+      "post": {
+        "operationId": "HouseholdsController_join",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinHouseholdDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "households"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/members": {
+      "get": {
+        "operationId": "HouseholdsController_members",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "households"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/invite-code/rotate": {
+      "post": {
+        "operationId": "HouseholdsController_rotateCode",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "households"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/leave": {
+      "post": {
+        "operationId": "HouseholdsController_leave",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "households"
         ]
       }
     }
@@ -60,6 +246,107 @@
         "type": "http"
       }
     },
-    "schemas": {}
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "alex@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12,
+            "example": "correct-horse-battery-staple"
+          },
+          "displayName": {
+            "type": "string",
+            "example": "Alex"
+          },
+          "betaInvite": {
+            "type": "string",
+            "description": "One-time operator beta invite."
+          },
+          "householdName": {
+            "type": "string",
+            "example": "The Martins"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Asia/Jerusalem",
+            "default": "UTC"
+          },
+          "client": {
+            "type": "string",
+            "enum": [
+              "web",
+              "android"
+            ],
+            "default": "web"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "displayName",
+          "betaInvite",
+          "householdName"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "alex@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12
+          },
+          "client": {
+            "type": "string",
+            "enum": [
+              "web",
+              "android"
+            ],
+            "default": "web"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "RefreshDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Android-only refresh credential."
+          },
+          "client": {
+            "type": "string",
+            "enum": [
+              "web",
+              "android"
+            ],
+            "default": "web"
+          }
+        }
+      },
+      "JoinHouseholdDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Shareable household code."
+          }
+        },
+        "required": [
+          "code"
+        ]
+      }
+    }
   }
 }

@@ -54,4 +54,4 @@ Gemini defaults to `gemini-2.5-flash` but is accessed through a configurable pro
 
 ## Operator work
 
-The beta-invite and password-reset CLI is added with the identity domain. The intended CLI will create hashed, expiring one-time beta invitations and reset a password while revoking all active sessions.
+Create an operator invite with `npm run cli -- beta-invite [expiry-days]` from `apps/api`; the token is shown once and stored only as a hash. Reset a password and revoke all active sessions with `npm run cli -- reset-password <email> <new-password-min-12>`.

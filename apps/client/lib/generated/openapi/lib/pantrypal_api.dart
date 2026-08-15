@@ -10,7 +10,11 @@ export 'package:pantrypal_api/src/auth/oauth.dart';
 export 'package:pantrypal_api/src/serializers.dart';
 export 'package:pantrypal_api/src/model/date.dart';
 
-export 'package:pantrypal_api/src/api/metrics_api.dart';
-export 'package:pantrypal_api/src/api/system_api.dart';
+export 'package:pantrypal_api/src/api/auth_api.dart';
+export 'package:pantrypal_api/src/api/households_api.dart';
 
+export 'package:pantrypal_api/src/model/join_household_dto.dart';
+export 'package:pantrypal_api/src/model/login_dto.dart';
+export 'package:pantrypal_api/src/model/refresh_dto.dart';
+export 'package:pantrypal_api/src/model/register_dto.dart';
 

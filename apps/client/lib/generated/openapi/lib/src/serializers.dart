@@ -14,10 +14,18 @@ import 'package:built_value/iso_8601_date_time_serializer.dart';
 import 'package:pantrypal_api/src/date_serializer.dart';
 import 'package:pantrypal_api/src/model/date.dart';
 
+import 'package:pantrypal_api/src/model/join_household_dto.dart';
+import 'package:pantrypal_api/src/model/login_dto.dart';
+import 'package:pantrypal_api/src/model/refresh_dto.dart';
+import 'package:pantrypal_api/src/model/register_dto.dart';
 
 part 'serializers.g.dart';
 
 @SerializersFor([
+  JoinHouseholdDto,
+  LoginDto,
+  RefreshDto,
+  RegisterDto,
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..add(const OneOfSerializer())
