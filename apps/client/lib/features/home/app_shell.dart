@@ -1,7 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app.dart';
+import '../auth/session_repository.dart';
 
 final selectedDestinationProvider = StateProvider<int>((ref) => 0);
 
@@ -48,7 +50,12 @@ class AppShell extends ConsumerWidget {
                   ),
               ],
             ),
-          Expanded(child: _Body(destination: destinations[selected])),
+          Expanded(
+            child: _Body(
+              destination: destinations[selected],
+              onImport: () => _showImport(context, ref),
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: wide
@@ -67,6 +74,76 @@ class AppShell extends ConsumerWidget {
             ),
     );
   }
+
+  Future<void> _showImport(BuildContext context, WidgetRef ref) async {
+    final source = TextEditingController();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          24,
+          24,
+          24,
+          24 + MediaQuery.viewInsetsOf(sheetContext).bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Import a recipe',
+              style: Theme.of(sheetContext).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Paste a public recipe page. PantryPal will create a review draft before saving it.',
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: source,
+              keyboardType: TextInputType.url,
+              decoration: const InputDecoration(
+                labelText: 'Recipe URL',
+                hintText: 'https://example.com/recipe',
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () async {
+                try {
+                  await ref
+                      .read(sessionRepositoryProvider)
+                      .importRecipe(source.text);
+                  if (sheetContext.mounted) Navigator.pop(sheetContext);
+                  if (context.mounted)
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Recipe import started.')),
+                    );
+                } on DioException catch (error) {
+                  final data = error.response?.data;
+                  final message = data is Map && data['message'] is String
+                      ? data['message'] as String
+                      : 'Could not start the import.';
+                  if (context.mounted)
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(message)));
+                } on StateError catch (error) {
+                  if (context.mounted)
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(error.message)));
+                }
+              },
+              child: const Text('Start import'),
+            ),
+          ],
+        ),
+      ),
+    );
+    source.dispose();
+  }
 }
 
 class _Brand extends StatelessWidget {
@@ -83,8 +160,9 @@ class _Brand extends StatelessWidget {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.destination});
+  const _Body({required this.destination, required this.onImport});
   final _Destination destination;
+  final VoidCallback onImport;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +212,7 @@ class _Body extends StatelessWidget {
                       if (home) ...[
                         const SizedBox(height: 20),
                         FilledButton.icon(
-                          onPressed: () {},
+                          onPressed: onImport,
                           icon: const Icon(Icons.add_link),
                           label: const Text('Import a recipe'),
                         ),

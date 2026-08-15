@@ -28,6 +28,7 @@ class SessionRepository {
 
   static const _accessTokenKey = 'pantrypal.access-token';
   static const _refreshTokenKey = 'pantrypal.refresh-token';
+  static const _householdIdKey = 'pantrypal.household-id';
   final Dio _dio;
   final FlutterSecureStorage _storage;
 
@@ -58,6 +59,7 @@ class SessionRepository {
   }
 
   Future<String?> accessToken() => _storage.read(key: _accessTokenKey);
+  Future<String?> householdId() => _storage.read(key: _householdIdKey);
 
   Future<void> joinHousehold(String code) async {
     final token = await accessToken();
@@ -66,6 +68,20 @@ class SessionRepository {
     await _dio.post<void>(
       '/households/join',
       data: {'code': code.trim()},
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    await _resolveHousehold(token);
+  }
+
+  Future<void> importRecipe(String sourceUrl) async {
+    final token = await accessToken();
+    final household = await householdId();
+    if (token == null || household == null) {
+      throw StateError('Your household session is unavailable. Sign in again.');
+    }
+    await _dio.post<void>(
+      '/households/$household/imports',
+      data: {'sourceKind': 'url', 'sourceInput': sourceUrl.trim()},
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
   }
@@ -85,6 +101,30 @@ class SessionRepository {
     }
     await _storage.write(key: _accessTokenKey, value: accessToken);
     await _storage.write(key: _refreshTokenKey, value: refreshToken);
+    final household = response.data?['household'];
+    if (household is Map && household['id'] is String) {
+      await _storage.write(
+        key: _householdIdKey,
+        value: household['id'] as String,
+      );
+    } else {
+      await _resolveHousehold(accessToken);
+    }
+  }
+
+  Future<void> _resolveHousehold(String token) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/households',
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    final first = response.data?.whereType<Map>().firstOrNull;
+    final household = first?['household'];
+    if (household is Map && household['id'] is String) {
+      await _storage.write(
+        key: _householdIdKey,
+        value: household['id'] as String,
+      );
+    }
   }
 
   void close() => _dio.close(force: true);
