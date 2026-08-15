@@ -263,8 +263,34 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             ),
             const SizedBox(height: 16),
             FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Save code for after sign in'),
+              onPressed: () async {
+                if (code.text.trim().isEmpty) return;
+                try {
+                  await ref
+                      .read(sessionRepositoryProvider)
+                      .joinHousehold(code.text);
+                  if (context.mounted) Navigator.pop(context);
+                  if (mounted)
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      const SnackBar(content: Text('Joined household.')),
+                    );
+                } on DioException catch (error) {
+                  final data = error.response?.data;
+                  final message = data is Map && data['message'] is String
+                      ? data['message'] as String
+                      : 'Could not join that household.';
+                  if (mounted)
+                    ScaffoldMessenger.of(
+                      this.context,
+                    ).showSnackBar(SnackBar(content: Text(message)));
+                } on StateError catch (error) {
+                  if (mounted)
+                    ScaffoldMessenger.of(
+                      this.context,
+                    ).showSnackBar(SnackBar(content: Text(error.message)));
+                }
+              },
+              child: const Text('Join household'),
             ),
           ],
         ),

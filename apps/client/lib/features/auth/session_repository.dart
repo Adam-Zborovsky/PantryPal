@@ -58,6 +58,18 @@ class SessionRepository {
   }
 
   Future<String?> accessToken() => _storage.read(key: _accessTokenKey);
+
+  Future<void> joinHousehold(String code) async {
+    final token = await accessToken();
+    if (token == null || token.isEmpty)
+      throw StateError('Sign in before joining a household.');
+    await _dio.post<void>(
+      '/households/join',
+      data: {'code': code.trim()},
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+  }
+
   Future<void> clear() => _storage.deleteAll();
 
   Future<void> _authenticate(String path, Map<String, String> payload) async {
