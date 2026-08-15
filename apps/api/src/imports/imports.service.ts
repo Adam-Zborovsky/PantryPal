@@ -3,15 +3,18 @@ import { HouseholdAccessService } from '../households/household-access.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { SourceUrlService } from './source-url.service';
 import { CreateImportDto } from './imports.dto';
+import { ImportQueueService } from './import-queue.service';
 
 @Injectable()
 export class ImportsService {
-  constructor(private readonly prisma: PrismaService, private readonly access: HouseholdAccessService, private readonly urls: SourceUrlService) {}
+  constructor(private readonly prisma: PrismaService, private readonly access: HouseholdAccessService, private readonly urls: SourceUrlService, private readonly queue: ImportQueueService) {}
 
   async create(accountId: string, householdId: string, input: CreateImportDto) {
     await this.access.requireActiveMembership(accountId, householdId);
     const canonicalUrl = input.sourceKind === 'url' ? this.urls.canonicalize(input.sourceInput) : undefined;
-    return this.prisma.importJob.create({ data: { householdId, accountId, sourceKind: input.sourceKind, sourceInput: input.sourceInput, canonicalUrl, status: 'QUEUED' } });
+    const job = await this.prisma.importJob.create({ data: { householdId, accountId, sourceKind: input.sourceKind, sourceInput: input.sourceInput, canonicalUrl, status: 'QUEUED' } });
+    await this.queue.enqueue(job.id);
+    return job;
   }
 
   async get(accountId: string, householdId: string, id: string) {

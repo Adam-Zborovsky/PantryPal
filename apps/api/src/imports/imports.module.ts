@@ -7,6 +7,8 @@ import { SourceUrlService } from './source-url.service';
 import { WebpageRecipeParserService } from './webpage-recipe-parser.service';
 import { DeterministicAnalysisProvider } from './deterministic-analysis.provider';
 import { RECIPE_ANALYSIS_PROVIDER } from './recipe-analysis.provider';
+import { ImportProcessorService } from './import-processor.service';
+import { ImportQueueService } from './import-queue.service';
 
-@Module({ imports: [AuthModule, HouseholdsModule], controllers: [ImportsController], providers: [ImportsService, SourceUrlService, WebpageRecipeParserService, DeterministicAnalysisProvider, { provide: RECIPE_ANALYSIS_PROVIDER, useExisting: DeterministicAnalysisProvider }] })
+@Module({ imports: [AuthModule, HouseholdsModule], controllers: [ImportsController], providers: [ImportsService, SourceUrlService, WebpageRecipeParserService, DeterministicAnalysisProvider, ImportProcessorService, ImportQueueService, { provide: RECIPE_ANALYSIS_PROVIDER, useExisting: DeterministicAnalysisProvider }], exports: [ImportProcessorService] })
 export class ImportsModule {}
