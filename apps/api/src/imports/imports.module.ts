@@ -5,6 +5,8 @@ import { ImportsController } from './imports.controller';
 import { ImportsService } from './imports.service';
 import { SourceUrlService } from './source-url.service';
 import { WebpageRecipeParserService } from './webpage-recipe-parser.service';
+import { DeterministicAnalysisProvider } from './deterministic-analysis.provider';
+import { RECIPE_ANALYSIS_PROVIDER } from './recipe-analysis.provider';
 
-@Module({ imports: [AuthModule, HouseholdsModule], controllers: [ImportsController], providers: [ImportsService, SourceUrlService, WebpageRecipeParserService] })
+@Module({ imports: [AuthModule, HouseholdsModule], controllers: [ImportsController], providers: [ImportsService, SourceUrlService, WebpageRecipeParserService, DeterministicAnalysisProvider, { provide: RECIPE_ANALYSIS_PROVIDER, useExisting: DeterministicAnalysisProvider }] })
 export class ImportsModule {}
