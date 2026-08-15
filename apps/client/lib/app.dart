@@ -3,9 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'features/auth/auth_page.dart';
+import 'features/auth/session_repository.dart';
 import 'features/home/app_shell.dart';
 
 final authenticatedProvider = StateProvider<bool>((ref) => false);
+final sessionRestoreProvider = FutureProvider<bool>(
+  (ref) => ref.read(sessionRepositoryProvider).restore(),
+);
 
 class PantryPalApp extends StatelessWidget {
   const PantryPalApp({super.key});
@@ -21,17 +25,30 @@ class _PantryPalMaterialApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final restored = ref.watch(sessionRestoreProvider);
+    final authenticated = ref.watch(authenticatedProvider);
     return MaterialApp(
       title: 'PantryPal',
       debugShowCheckedModeBanner: false,
       theme: PantryPalTheme.light(),
       darkTheme: PantryPalTheme.dark(),
       themeMode: ThemeMode.system,
-      home: ref.watch(authenticatedProvider)
-          ? const AppShell()
-          : const AuthPage(),
+      home: restored.when(
+        loading: () => const _SessionRestoring(),
+        error: (_, _) => const AuthPage(),
+        data: (hasSession) =>
+            authenticated || hasSession ? const AppShell() : const AuthPage(),
+      ),
     );
   }
+}
+
+class _SessionRestoring extends StatelessWidget {
+  const _SessionRestoring();
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: CircularProgressIndicator()));
 }
 
 class PantryPalTheme {

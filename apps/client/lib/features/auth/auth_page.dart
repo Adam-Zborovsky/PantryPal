@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app.dart';
-
-const _apiBaseUrl = String.fromEnvironment(
-  'API_BASE_URL',
-  defaultValue: 'http://localhost:3000/v1',
-);
+import 'session_repository.dart';
 
 class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
@@ -45,29 +41,26 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       _error = null;
     });
     try {
-      final payload = <String, String>{
-        'email': _email.text.trim(),
-        'password': _password.text,
-        'client': 'android',
-        if (_registering) ...{
-          'displayName': _displayName.text.trim(),
-          'householdName': _household.text.trim(),
-          'betaInvite': _invite.text.trim(),
-          'timezone': DateTime.now().timeZoneName,
-        },
-      };
-      await Dio(
-        BaseOptions(
-          baseUrl: _apiBaseUrl,
-          connectTimeout: const Duration(seconds: 10),
-        ),
-      ).post(_registering ? '/auth/register' : '/auth/login', data: payload);
+      final session = ref.read(sessionRepositoryProvider);
+      if (_registering) {
+        await session.register(
+          email: _email.text,
+          password: _password.text,
+          displayName: _displayName.text,
+          householdName: _household.text,
+          betaInvite: _invite.text,
+        );
+      } else {
+        await session.login(email: _email.text, password: _password.text);
+      }
       if (mounted) ref.read(authenticatedProvider.notifier).state = true;
-    } on DioException catch (error) {
-      final data = error.response?.data;
+    } catch (error) {
+      final message = error is DioException && error.response?.data is Map
+          ? (error.response!.data as Map)['message']
+          : null;
       setState(
-        () => _error = data is Map && data['message'] is String
-            ? data['message'] as String
+        () => _error = message is String
+            ? message
             : 'Could not connect. Check the API address and try again.',
       );
     } finally {
