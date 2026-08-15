@@ -1,0 +1,65 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/live": {
+      "get": {
+        "operationId": "HealthController_live",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The API process is live."
+          }
+        },
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/v1/ready": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The API is ready to accept requests."
+          }
+        },
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/v1/metrics": {
+      "get": {
+        "operationId": "MetricsController_metrics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Metrics"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "PantryPal API",
+    "description": "Invite-only household recipe planning API.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {}
+  }
+}

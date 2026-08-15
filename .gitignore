@@ -1,0 +1,23 @@
+# Local secrets and service data
+.env
+.env.*
+!.env.example
+
+# Local media-tool environment (the pinned requirements file is committed)
+.media-tools-venv/
+
+# Node and Flutter build output
+node_modules/
+apps/api/dist/
+apps/api/coverage/
+apps/client/.dart_tool/
+apps/client/.flutter-plugins*
+apps/client/build/
+apps/client/.packages
+
+# IDE and OS state
+.idea/
+.vscode/
+*.iml
+Thumbs.db
+.DS_Store

@@ -1,0 +1,416 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MembershipStatus {
+  ACTIVE
+  LEFT
+}
+
+enum ImportStatus {
+  QUEUED
+  VALIDATING_SOURCE
+  FETCHING_METADATA
+  FETCHING_CONTENT
+  ANALYZING_TEXT
+  ACQUIRING_MEDIA
+  ANALYZING_AUDIO
+  ANALYZING_VISUALS
+  STRUCTURING_RECIPE
+  READY_FOR_REVIEW
+  FAILED
+  CANCELLED
+}
+
+enum RecipeReadiness {
+  DRAFT
+  COOK_READY
+  SHOPPING_READY
+  NEEDS_REVIEW
+}
+
+enum IngredientClassification {
+  REQUIRED
+  FLEXIBLE
+  PANTRY_STAPLE
+  GARNISH
+}
+
+enum CookingStatus {
+  SCHEDULED
+  ARCHIVED
+  CANCELLED
+}
+
+enum TransferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
+enum TripStatus {
+  PROPOSED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ShoppingItemStatus {
+  NEED_TO_BUY
+  CONFIRMED_AT_HOME
+  CHECK_AGAIN
+  PARTIALLY_AVAILABLE
+  PURCHASED
+  IGNORED
+}
+
+enum MediaKind {
+  IMAGE
+  AUDIO
+  VIDEO
+  COVER
+}
+
+enum NotificationChannel {
+  IN_APP
+  ANDROID
+  WEB
+}
+
+model Account {
+  id                 String                @id @default(cuid())
+  email              String                @unique
+  displayName        String
+  passwordHash       String
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  sessions           Session[]
+  memberships        HouseholdMembership[]
+}
+
+model Session {
+  id                 String   @id @default(cuid())
+  accountId          String
+  refreshTokenHash   String
+  expiresAt          DateTime
+  revokedAt          DateTime?
+  createdAt          DateTime @default(now())
+  rotatedFromId      String?
+  account            Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  @@index([accountId, expiresAt])
+}
+
+model BetaInvite {
+  id                 String   @id @default(cuid())
+  tokenHash          String   @unique
+  expiresAt          DateTime
+  redeemedAt         DateTime?
+  redeemedByAccountId String?
+  createdAt          DateTime @default(now())
+}
+
+model Household {
+  id                 String                @id @default(cuid())
+  name               String
+  timezone           String                @default("UTC")
+  revision           Int                   @default(1)
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  memberships        HouseholdMembership[]
+}
+
+model HouseholdMembership {
+  id                 String           @id @default(cuid())
+  householdId        String
+  accountId          String
+  status             MembershipStatus @default(ACTIVE)
+  joinedAt           DateTime         @default(now())
+  leftAt             DateTime?
+  household          Household        @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  account            Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  @@unique([householdId, accountId])
+  @@index([accountId, status])
+}
+
+model HouseholdInviteCode {
+  id                 String   @id @default(cuid())
+  householdId        String
+  codeHash           String   @unique
+  createdAt          DateTime @default(now())
+  rotatedAt          DateTime?
+  rotatedByAccountId String
+  @@index([householdId])
+}
+
+model ActivityEvent {
+  id                 String   @id @default(cuid())
+  householdId        String
+  actorAccountId     String
+  actorDisplayName   String
+  entityType         String
+  entityId           String
+  action             String
+  summary            Json
+  createdAt          DateTime @default(now())
+  @@index([householdId, createdAt])
+}
+
+model Recipe {
+  id                 String   @id @default(cuid())
+  householdId        String
+  currentVersionId   String?
+  title              String
+  readiness          RecipeReadiness @default(DRAFT)
+  revision           Int      @default(1)
+  deletedAt          DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  @@index([householdId, updatedAt])
+}
+
+model RecipeVersion {
+  id                 String   @id @default(cuid())
+  householdId        String
+  recipeId           String
+  version            Int
+  title              String
+  originalServings   Decimal? @db.Decimal(12, 3)
+  yieldWording       String?
+  readiness          RecipeReadiness
+  snapshot           Json
+  createdByAccountId String
+  createdAt          DateTime @default(now())
+  @@unique([recipeId, version])
+  @@index([householdId, recipeId])
+}
+
+model RecipeSource {
+  id                 String   @id @default(cuid())
+  householdId        String
+  recipeId           String
+  kind               String
+  canonicalUrl       String?
+  attribution        String?
+  createdAt          DateTime @default(now())
+  @@index([householdId, recipeId])
+}
+
+model CanonicalIngredient {
+  id                 String   @id @default(cuid())
+  canonicalName      String   @unique
+  dimension          String?
+  createdAt          DateTime @default(now())
+}
+
+model IngredientAlias {
+  id                   String   @id @default(cuid())
+  canonicalIngredientId String
+  alias                String   @unique
+  createdAt            DateTime @default(now())
+}
+
+model RecipeIngredient {
+  id                   String                   @id @default(cuid())
+  householdId          String
+  recipeVersionId      String
+  canonicalIngredientId String?
+  name                 String
+  quantityMin          Decimal?                 @db.Decimal(12, 3)
+  quantityMax          Decimal?                 @db.Decimal(12, 3)
+  originalUnit         String?
+  normalizedUnit       String?
+  originalText         String
+  preparationNote      String?
+  classification       IngredientClassification @default(REQUIRED)
+  includeInShopping    Boolean                  @default(true)
+  inferred             Boolean                  @default(false)
+  sortOrder            Int
+  @@index([householdId, recipeVersionId])
+}
+
+model RecipeInstruction {
+  id              String   @id @default(cuid())
+  householdId     String
+  recipeVersionId String
+  body            String
+  sortOrder       Int
+  @@index([householdId, recipeVersionId])
+}
+
+model ImportJob {
+  id              String       @id @default(cuid())
+  householdId     String
+  accountId       String
+  status          ImportStatus @default(QUEUED)
+  sourceKind      String
+  sourceInput     String
+  canonicalUrl    String?
+  progress        Int          @default(0)
+  errorCode       String?
+  errorDetail     Json?
+  revision        Int          @default(1)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  @@index([householdId, createdAt])
+}
+
+model ExtractionEvidence {
+  id              String   @id @default(cuid())
+  householdId     String
+  importJobId     String
+  fieldPath       String
+  origin          String
+  excerpt         String?
+  timestampMs     Int?
+  frameIndex      Int?
+  confidence      Decimal? @db.Decimal(5, 4)
+  createdAt       DateTime @default(now())
+  @@index([importJobId])
+}
+
+model MediaAsset {
+  id              String    @id @default(cuid())
+  householdId     String
+  importJobId     String?
+  kind            MediaKind
+  storageKey      String
+  mimeType        String
+  byteSize        Int
+  retained        Boolean   @default(false)
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+  @@index([householdId, expiresAt])
+}
+
+model CookingInstance {
+  id                    String        @id @default(cuid())
+  householdId           String
+  recipeId              String
+  recipeVersionId       String
+  recipeSnapshot        Json
+  scaledIngredients     Json
+  targetServings        Decimal       @db.Decimal(12, 3)
+  cookingDate           DateTime?
+  shoppingTripId        String?
+  assignmentMode        String        @default("AUTOMATIC")
+  confirmedCookAccountId String
+  pendingCookAccountId  String?
+  status                CookingStatus @default(SCHEDULED)
+  archiveCoverKey       String?
+  archivedAt            DateTime?
+  revision              Int           @default(1)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  @@index([householdId, cookingDate])
+}
+
+model CookAssignmentTransfer {
+  id                 String         @id @default(cuid())
+  householdId        String
+  cookingInstanceId  String
+  fromAccountId      String
+  targetAccountId    String
+  status             TransferStatus @default(PENDING)
+  createdAt          DateTime       @default(now())
+  resolvedAt         DateTime?
+  @@index([householdId, cookingInstanceId])
+}
+
+model ShoppingTrip {
+  id                 String     @id @default(cuid())
+  householdId        String
+  scheduledFor       DateTime?
+  status             TripStatus @default(PROPOSED)
+  revision           Int        @default(1)
+  createdByAccountId String
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  @@index([householdId, scheduledFor])
+}
+
+model TripRecipeAssignment {
+  id                String   @id @default(cuid())
+  householdId       String
+  shoppingTripId    String
+  cookingInstanceId String
+  assignmentMode    String
+  createdAt         DateTime @default(now())
+  @@unique([shoppingTripId, cookingInstanceId])
+}
+
+model ShoppingItem {
+  id                   String             @id @default(cuid())
+  householdId          String
+  shoppingTripId       String
+  canonicalIngredientId String?
+  displayName          String
+  quantityMin          Decimal?           @db.Decimal(12, 3)
+  quantityMax          Decimal?           @db.Decimal(12, 3)
+  unit                 String?
+  status               ShoppingItemStatus @default(NEED_TO_BUY)
+  revision             Int                @default(1)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  @@index([householdId, shoppingTripId])
+}
+
+model ShoppingItemContribution {
+  id                   String   @id @default(cuid())
+  householdId          String
+  shoppingItemId       String
+  cookingInstanceId    String
+  recipeTitle          String
+  quantityMin          Decimal? @db.Decimal(12, 3)
+  quantityMax          Decimal? @db.Decimal(12, 3)
+  unit                 String?
+  createdAt            DateTime @default(now())
+  @@index([shoppingItemId])
+}
+
+model PantryAssessment {
+  id                    String   @id @default(cuid())
+  householdId           String
+  shoppingItemId        String
+  status                ShoppingItemStatus
+  confirmedByAccountId  String
+  knownQuantity         Decimal? @db.Decimal(12, 3)
+  unit                  String?
+  demandAtConfirmation  Json
+  horizonEnd            DateTime?
+  staleAt               DateTime?
+  createdAt             DateTime @default(now())
+  @@index([householdId, shoppingItemId])
+}
+
+model Notification {
+  id                 String              @id @default(cuid())
+  householdId        String
+  accountId          String
+  channel            NotificationChannel @default(IN_APP)
+  dedupeKey          String
+  title              String
+  body               String
+  deepLink           String
+  readAt             DateTime?
+  createdAt          DateTime            @default(now())
+  @@unique([accountId, channel, dedupeKey])
+  @@index([householdId, accountId, createdAt])
+}
+
+model PushSubscription {
+  id                 String   @id @default(cuid())
+  accountId          String
+  platform           String
+  endpoint           String   @unique
+  keys               Json
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  @@index([accountId])
+}

@@ -1,0 +1,45 @@
+name: Verify
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      DATABASE_URL: postgresql://pantrypal:pantrypal@localhost:5432/pantrypal?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+      - run: npm ci
+      - run: npm run prisma:validate
+      - run: npm run prisma:generate
+      - run: npm run build
+      - run: npm test -- --runInBand
+      - run: npm run test:e2e -- --runInBand
+      - run: npm run contract:check
+
+  client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.4
+          channel: stable
+      - run: flutter pub get
+      - run: dart format --set-exit-if-changed lib test
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter build web
