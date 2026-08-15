@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:pantrypal_api/pantrypal_api.dart';
 
-
 /// tests for AuthApi
 void main() {
   final instance = PantrypalApi().getAuthApi();
@@ -26,6 +25,5 @@ void main() {
     test('test authControllerRegister', () async {
       // TODO
     });
-
   });
 }

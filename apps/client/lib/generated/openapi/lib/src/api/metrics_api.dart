@@ -8,9 +8,7 @@ import 'package:built_value/json_object.dart';
 import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
-
 class MetricsApi {
-
   final Dio _dio;
 
   final Serializers _serializers;
@@ -18,7 +16,7 @@ class MetricsApi {
   const MetricsApi(this._dio, this._serializers);
 
   /// metricsControllerMetrics
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -30,7 +28,7 @@ class MetricsApi {
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> metricsControllerMetrics({ 
+  Future<Response<void>> metricsControllerMetrics({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -41,13 +39,8 @@ class MetricsApi {
     final _path = r'/v1/metrics';
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
-      extra: <String, dynamic>{
-        'secure': <Map<String, String>>[],
-        ...?extra,
-      },
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{'secure': <Map<String, String>>[], ...?extra},
       validateStatus: validateStatus,
     );
 
@@ -61,5 +54,4 @@ class MetricsApi {
 
     return _response;
   }
-
 }

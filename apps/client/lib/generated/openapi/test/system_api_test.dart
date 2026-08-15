@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:pantrypal_api/pantrypal_api.dart';
 
-
 /// tests for SystemApi
 void main() {
   final instance = PantrypalApi().getSystemApi();
@@ -16,6 +15,5 @@ void main() {
     test('test healthControllerReady', () async {
       // TODO
     });
-
   });
 }

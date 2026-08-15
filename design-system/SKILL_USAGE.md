@@ -40,3 +40,11 @@ Every available design-related skill was reviewed before UI implementation. Spec
 | substance-3d-texturing | PBR materials | Assessed visual asset production | Rejected: flat illustration direction | N/A |
 | threejs-webgl | WebGL 3D | Assessed web rendering option | Rejected: no 3D requirement | N/A |
 | web3d-integration-patterns | Combined 3D/motion architecture | Assessed integration complexity | Rejected: no constituent runtime selected | N/A |
+
+## Implementation follow-up
+
+Stitch generated the mobile signed-out PantryPal experience in project
+`17784570670142129014`. Its concrete decisions were translated into the Flutter
+identity surfaces: a flat kitchen-mark signature, calm labelled forms, and
+terracotta primary actions. The artifact and the connector limitation are
+recorded in `STITCH.md`.

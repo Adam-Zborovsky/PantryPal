@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:pantrypal_api/pantrypal_api.dart';
 
-
 /// tests for HouseholdsApi
 void main() {
   final instance = PantrypalApi().getHouseholdsApi();
@@ -31,6 +30,5 @@ void main() {
     test('test householdsControllerRotateCode', () async {
       // TODO
     });
-
   });
 }

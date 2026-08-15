@@ -8,9 +8,7 @@ import 'package:built_value/json_object.dart';
 import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
-
 class SystemApi {
-
   final Dio _dio;
 
   final Serializers _serializers;
@@ -18,7 +16,7 @@ class SystemApi {
   const SystemApi(this._dio, this._serializers);
 
   /// healthControllerLive
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -30,7 +28,7 @@ class SystemApi {
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> healthControllerLive({ 
+  Future<Response<void>> healthControllerLive({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -41,13 +39,8 @@ class SystemApi {
     final _path = r'/v1/live';
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
-      extra: <String, dynamic>{
-        'secure': <Map<String, String>>[],
-        ...?extra,
-      },
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{'secure': <Map<String, String>>[], ...?extra},
       validateStatus: validateStatus,
     );
 
@@ -63,7 +56,7 @@ class SystemApi {
   }
 
   /// healthControllerReady
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -75,7 +68,7 @@ class SystemApi {
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> healthControllerReady({ 
+  Future<Response<void>> healthControllerReady({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -86,13 +79,8 @@ class SystemApi {
     final _path = r'/v1/ready';
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
-      extra: <String, dynamic>{
-        'secure': <Map<String, String>>[],
-        ...?extra,
-      },
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{'secure': <Map<String, String>>[], ...?extra},
       validateStatus: validateStatus,
     );
 
@@ -106,5 +94,4 @@ class SystemApi {
 
     return _response;
   }
-
 }
