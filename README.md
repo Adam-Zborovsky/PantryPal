@@ -46,8 +46,8 @@ No Dockerfiles, Compose files, proxy configuration, or deployment automation bel
 3. In a second terminal, run `npm run start:worker` from `apps/api`.
 4. Create a beta token with `npm run cli -- beta-invite` and keep its one-time output.
 5. Run the Flutter client. For web, use
-   `E:/flutter/bin/flutter.bat run -d chrome --dart-define=API_BASE_URL=http://localhost:3000/v1`.
-   For an Android emulator, use `http://10.0.2.2:3000/v1` instead.
+   `E:/flutter/bin/flutter.bat run -d chrome --dart-define=API_BASE_URL=http://localhost:3001/v1`.
+   For an Android emulator, use `http://10.0.2.2:3001/v1` instead.
 6. Create an account using the beta token, then use **Import a recipe** on Home
    with a public recipe-page URL. The worker creates a review draft; unsupported
    sources return an explicit job failure rather than pretending to succeed.

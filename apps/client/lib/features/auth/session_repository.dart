@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'http://localhost:3000/v1',
+  defaultValue: 'http://localhost:3001/v1',
 );
 
 final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
