@@ -73,17 +73,31 @@ class SessionRepository {
     await _resolveHousehold(token);
   }
 
-  Future<void> importRecipe(String sourceUrl) async {
+  Future<ImportJobSummary> importRecipe(String sourceUrl) async {
     final token = await accessToken();
     final household = await householdId();
     if (token == null || household == null) {
       throw StateError('Your household session is unavailable. Sign in again.');
     }
-    await _dio.post<void>(
+    final response = await _dio.post<Map<String, dynamic>>(
       '/households/$household/imports',
       data: {'sourceKind': 'url', 'sourceInput': sourceUrl.trim()},
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
+    return ImportJobSummary.fromJson(response.data ?? const {});
+  }
+
+  Future<ImportJobSummary> importStatus(String jobId) async {
+    final token = await accessToken();
+    final household = await householdId();
+    if (token == null || household == null) {
+      throw StateError('Your household session is unavailable. Sign in again.');
+    }
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/households/$household/imports/$jobId',
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    return ImportJobSummary.fromJson(response.data ?? const {});
   }
 
   Future<void> clear() => _storage.deleteAll();
@@ -128,4 +142,25 @@ class SessionRepository {
   }
 
   void close() => _dio.close(force: true);
+}
+
+class ImportJobSummary {
+  const ImportJobSummary({
+    required this.id,
+    required this.status,
+    required this.progress,
+    this.errorCode,
+  });
+  final String id;
+  final String status;
+  final int progress;
+  final String? errorCode;
+
+  factory ImportJobSummary.fromJson(Map<String, dynamic> json) =>
+      ImportJobSummary(
+        id: json['id'] as String? ?? '',
+        status: json['status'] as String? ?? 'QUEUED',
+        progress: json['progress'] as int? ?? 0,
+        errorCode: json['errorCode'] as String?,
+      );
 }

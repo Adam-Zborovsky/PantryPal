@@ -6,6 +6,7 @@ import '../../app.dart';
 import '../auth/session_repository.dart';
 
 final selectedDestinationProvider = StateProvider<int>((ref) => 0);
+final activeImportProvider = StateProvider<ImportJobSummary?>((ref) => null);
 
 class AppShell extends ConsumerWidget {
   const AppShell({super.key});
@@ -19,6 +20,7 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(selectedDestinationProvider);
+    final activeImport = ref.watch(activeImportProvider);
     final wide = MediaQuery.sizeOf(context).width >= 760;
     void select(int index) =>
         ref.read(selectedDestinationProvider.notifier).state = index;
@@ -53,7 +55,11 @@ class AppShell extends ConsumerWidget {
           Expanded(
             child: _Body(
               destination: destinations[selected],
+              activeImport: activeImport,
               onImport: () => _showImport(context, ref),
+              onRefreshImport: activeImport == null
+                  ? null
+                  : () => _refreshImport(context, ref, activeImport),
             ),
           ),
         ],
@@ -73,6 +79,24 @@ class AppShell extends ConsumerWidget {
               ],
             ),
     );
+  }
+
+  Future<void> _refreshImport(
+    BuildContext context,
+    WidgetRef ref,
+    ImportJobSummary job,
+  ) async {
+    try {
+      ref.read(activeImportProvider.notifier).state = await ref
+          .read(sessionRepositoryProvider)
+          .importStatus(job.id);
+    } on DioException {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not refresh import status.')),
+        );
+      }
+    }
   }
 
   Future<void> _showImport(BuildContext context, WidgetRef ref) async {
@@ -112,9 +136,10 @@ class AppShell extends ConsumerWidget {
             FilledButton(
               onPressed: () async {
                 try {
-                  await ref
+                  final job = await ref
                       .read(sessionRepositoryProvider)
                       .importRecipe(source.text);
+                  ref.read(activeImportProvider.notifier).state = job;
                   if (sheetContext.mounted) Navigator.pop(sheetContext);
                   if (context.mounted)
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -160,9 +185,16 @@ class _Brand extends StatelessWidget {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.destination, required this.onImport});
+  const _Body({
+    required this.destination,
+    required this.activeImport,
+    required this.onImport,
+    required this.onRefreshImport,
+  });
   final _Destination destination;
+  final ImportJobSummary? activeImport;
   final VoidCallback onImport;
+  final VoidCallback? onRefreshImport;
 
   @override
   Widget build(BuildContext context) {
@@ -221,6 +253,39 @@ class _Body extends StatelessWidget {
                   ),
                 ),
               ),
+              if (home && activeImport != null) ...[
+                const SizedBox(height: 16),
+                Card(
+                  child: ListTile(
+                    leading: Icon(
+                      activeImport!.status == 'FAILED'
+                          ? Icons.error_outline
+                          : Icons.sync,
+                      color: activeImport!.status == 'FAILED'
+                          ? Theme.of(context).colorScheme.error
+                          : PantryPalTheme.green,
+                    ),
+                    title: Text(
+                      activeImport!.status == 'READY_FOR_REVIEW'
+                          ? 'Recipe ready to review'
+                          : activeImport!.status == 'FAILED'
+                          ? 'Import needs attention'
+                          : 'Importing recipe',
+                    ),
+                    subtitle: Text(
+                      activeImport!.status == 'FAILED'
+                          ? (activeImport!.errorCode ??
+                                'Could not complete the source.')
+                          : '${activeImport!.status.replaceAll('_', ' ').toLowerCase()} • ${activeImport!.progress}%',
+                    ),
+                    trailing: IconButton(
+                      tooltip: 'Refresh import status',
+                      onPressed: onRefreshImport,
+                      icon: const Icon(Icons.refresh),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
