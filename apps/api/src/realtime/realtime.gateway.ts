@@ -1,16 +1,32 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { ConnectedSocket, OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import type { Server, Socket } from 'socket.io';
+import { createAdapter } from '@socket.io/redis-adapter';
+import Redis from 'ioredis';
 import { AccessClaims } from '../auth/auth.types';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 @WebSocketGateway({ namespace: '/v1/realtime', cors: { origin: process.env.APP_ORIGIN ?? 'http://localhost:3000', credentials: true } })
-export class RealtimeGateway implements OnGatewayConnection {
+export class RealtimeGateway implements OnGatewayConnection, OnModuleDestroy {
   @WebSocketServer() server!: Server;
   constructor(private readonly jwt: JwtService, private readonly config: ConfigService, private readonly prisma: PrismaService) {}
+
+  afterInit(server: Server) {
+    const url = process.env.REDIS_URL;
+    if (!url || process.env.NODE_ENV === 'test') return;
+    const publisher = new Redis(url);
+    const subscriber = publisher.duplicate();
+    server.adapter(createAdapter(publisher, subscriber));
+    this.redis = [publisher, subscriber];
+  }
+  private redis?: [Redis, Redis];
+
+  async onModuleDestroy() {
+    await Promise.all(this.redis?.map((client) => client.quit()) ?? []);
+  }
 
   async handleConnection(client: Socket) {
     try {

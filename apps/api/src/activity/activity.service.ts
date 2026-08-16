@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimeGateway } from '../realtime/realtime.gateway';
 import { Prisma } from '@prisma/client';
+import { ForbiddenException } from '@nestjs/common';
 
 export interface ActivityActor {
   accountId: string;
@@ -20,5 +21,11 @@ export class ActivityService {
       householdId, entityId: event.id, revision: 1, actor, occurredAt: event.createdAt.toISOString(), action,
     });
     return event;
+  }
+
+  async list(householdId: string, accountId: string, limit: number) {
+    const membership = await this.prisma.householdMembership.findUnique({ where: { householdId_accountId: { householdId, accountId } } });
+    if (!membership || membership.status !== 'ACTIVE') throw new ForbiddenException('You are not an active member of this household.');
+    return this.prisma.activityEvent.findMany({ where: { householdId }, orderBy: { createdAt: 'desc' }, take: Math.min(Math.max(limit, 1), 100) });
   }
 }
