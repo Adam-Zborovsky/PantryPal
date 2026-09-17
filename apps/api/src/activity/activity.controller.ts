@@ -12,7 +12,15 @@ export class ActivityController {
   constructor(private readonly activity: ActivityService) {}
   @Get()
   @ApiOkResponse({ description: 'Newest household activity events.' })
-  list(@Req() request: AuthenticatedRequest, @Param('householdId') householdId: string, @Query('limit') limit?: string) {
-    return this.activity.list(householdId, request.user.sub, Number(limit ?? 50));
+  list(
+    @Req() request: AuthenticatedRequest,
+    @Param('householdId') householdId: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.activity.list(
+      householdId,
+      request.user.sub,
+      Number(limit ?? 50),
+    );
   }
 }

@@ -4,5 +4,10 @@ import { AuthModule } from '../auth/auth.module';
 import { ActivityService } from './activity.service';
 import { ActivityController } from './activity.controller';
 
-@Module({ imports: [RealtimeModule, AuthModule], controllers: [ActivityController], providers: [ActivityService], exports: [ActivityService] })
+@Module({
+  imports: [RealtimeModule, AuthModule],
+  controllers: [ActivityController],
+  providers: [ActivityService],
+  exports: [ActivityService],
+})
 export class ActivityModule {}
