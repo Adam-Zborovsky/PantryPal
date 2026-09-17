@@ -1,5 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsIn, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  MinLength,
+} from 'class-validator';
 
 export class RegisterDto {
   @ApiProperty({ example: 'alex@example.com' })
@@ -77,10 +85,16 @@ export class HouseholdResponseDto {
 
 export class AuthSessionResponseDto {
   @ApiProperty() accessToken!: string;
-  @ApiPropertyOptional({ description: 'Returned only to Android clients.' }) refreshToken?: string;
-  @ApiPropertyOptional({ type: AccountResponseDto }) account?: AccountResponseDto;
-  @ApiPropertyOptional({ type: HouseholdResponseDto }) household?: HouseholdResponseDto;
-  @ApiPropertyOptional({ description: 'Returned only immediately after registration.' }) householdCode?: string;
+  @ApiPropertyOptional({ description: 'Returned only to Android clients.' })
+  refreshToken?: string;
+  @ApiPropertyOptional({ type: AccountResponseDto })
+  account?: AccountResponseDto;
+  @ApiPropertyOptional({ type: HouseholdResponseDto })
+  household?: HouseholdResponseDto;
+  @ApiPropertyOptional({
+    description: 'Returned only immediately after registration.',
+  })
+  householdCode?: string;
 }
 
 export class CreateBetaInviteDto {

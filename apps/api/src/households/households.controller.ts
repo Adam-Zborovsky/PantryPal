@@ -1,4 +1,13 @@
-import { Body, Controller, Get, HttpCode, Param, Post, UseGuards, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/access-token.guard';
 import type { AuthenticatedRequest } from '../auth/auth.types';
@@ -13,7 +22,9 @@ export class HouseholdsController {
   constructor(private readonly households: HouseholdsService) {}
 
   @Get()
-  @ApiOkResponse({ description: 'Active household memberships for the signed-in account.' })
+  @ApiOkResponse({
+    description: 'Active household memberships for the signed-in account.',
+  })
   list(@Req() request: AuthenticatedRequest) {
     return this.households.list(request.user.sub);
   }
@@ -24,18 +35,27 @@ export class HouseholdsController {
   }
 
   @Get(':householdId/members')
-  members(@Req() request: AuthenticatedRequest, @Param('householdId') householdId: string) {
+  members(
+    @Req() request: AuthenticatedRequest,
+    @Param('householdId') householdId: string,
+  ) {
     return this.households.members(request.user.sub, householdId);
   }
 
   @Post(':householdId/invite-code/rotate')
-  rotateCode(@Req() request: AuthenticatedRequest, @Param('householdId') householdId: string) {
+  rotateCode(
+    @Req() request: AuthenticatedRequest,
+    @Param('householdId') householdId: string,
+  ) {
     return this.households.rotateCode(request.user.sub, householdId);
   }
 
   @Post(':householdId/leave')
   @HttpCode(204)
-  leave(@Req() request: AuthenticatedRequest, @Param('householdId') householdId: string) {
+  leave(
+    @Req() request: AuthenticatedRequest,
+    @Param('householdId') householdId: string,
+  ) {
     return this.households.leave(request.user.sub, householdId);
   }
 }

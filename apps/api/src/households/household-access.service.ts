@@ -10,7 +10,9 @@ export class HouseholdAccessService {
       where: { householdId_accountId: { householdId, accountId } },
     });
     if (!membership || membership.status !== 'ACTIVE') {
-      throw new ForbiddenException('You are not an active member of this household.');
+      throw new ForbiddenException(
+        'You are not an active member of this household.',
+      );
     }
     return membership;
   }

@@ -269,25 +269,30 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                   await ref
                       .read(sessionRepositoryProvider)
                       .joinHousehold(code.text);
-                  if (context.mounted) Navigator.pop(context);
-                  if (mounted)
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                  }
+                  if (mounted) {
                     ScaffoldMessenger.of(this.context).showSnackBar(
                       const SnackBar(content: Text('Joined household.')),
                     );
+                  }
                 } on DioException catch (error) {
                   final data = error.response?.data;
                   final message = data is Map && data['message'] is String
                       ? data['message'] as String
                       : 'Could not join that household.';
-                  if (mounted)
+                  if (mounted) {
                     ScaffoldMessenger.of(
                       this.context,
                     ).showSnackBar(SnackBar(content: Text(message)));
+                  }
                 } on StateError catch (error) {
-                  if (mounted)
+                  if (mounted) {
                     ScaffoldMessenger.of(
                       this.context,
                     ).showSnackBar(SnackBar(content: Text(error.message)));
+                  }
                 }
               },
               child: const Text('Join household'),
@@ -350,12 +355,12 @@ class _CupboardMark extends StatelessWidget {
           width: 52,
           height: 52,
           decoration: BoxDecoration(
-            border: Border.all(color: PantryPalTheme.terracotta, width: 2),
+            border: Border.all(color: PantryPalTheme.tomato, width: 2),
             borderRadius: BorderRadius.circular(16),
           ),
           child: const Icon(
             Icons.kitchen_outlined,
-            color: PantryPalTheme.terracotta,
+            color: PantryPalTheme.tomato,
           ),
         ),
         const SizedBox(width: 12),
