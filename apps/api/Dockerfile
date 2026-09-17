@@ -26,6 +26,6 @@ COPY --from=build /app/dist ./dist
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod 0555 ./docker-entrypoint.sh
 
-EXPOSE 3001
+EXPOSE 8181
 ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "dist/main.js"]
