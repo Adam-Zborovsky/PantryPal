@@ -61,7 +61,7 @@ services:
     build:
       context: ./apps/client
       args:
-        API_BASE_URL: ${API_BASE_URL:?Set API_BASE_URL in deploy/.env}
+        API_BASE_URL: ${API_BASE_URL:?Set API_BASE_URL in .env}
     container_name: pantrypal-frontend
     restart: unless-stopped
     depends_on:
