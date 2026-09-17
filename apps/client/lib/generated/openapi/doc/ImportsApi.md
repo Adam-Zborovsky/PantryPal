@@ -10,7 +10,9 @@ All URIs are relative to *http://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**importsControllerCancel**](ImportsApi.md#importscontrollercancel) | **POST** /v1/households/{householdId}/imports/{id}/cancel | 
+[**importsControllerCompleteMediaUpload**](ImportsApi.md#importscontrollercompletemediaupload) | **POST** /v1/households/{householdId}/imports/media-assets/{assetId}/complete | 
 [**importsControllerCreate**](ImportsApi.md#importscontrollercreate) | **POST** /v1/households/{householdId}/imports | 
+[**importsControllerCreateMediaUpload**](ImportsApi.md#importscontrollercreatemediaupload) | **POST** /v1/households/{householdId}/imports/media-assets/upload-url | 
 [**importsControllerGet**](ImportsApi.md#importscontrollerget) | **GET** /v1/households/{householdId}/imports/{id} | 
 
 
@@ -56,6 +58,49 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **importsControllerCompleteMediaUpload**
+> CompleteMediaUploadResponseDto importsControllerCompleteMediaUpload(householdId, assetId)
+
+
+
+### Example
+```dart
+import 'package:pantrypal_api/api.dart';
+
+final api = PantrypalApi().getImportsApi();
+final String householdId = householdId_example; // String | 
+final String assetId = assetId_example; // String | 
+
+try {
+    final response = api.importsControllerCompleteMediaUpload(householdId, assetId);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling ImportsApi->importsControllerCompleteMediaUpload: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **householdId** | **String**|  | 
+ **assetId** | **String**|  | 
+
+### Return type
+
+[**CompleteMediaUploadResponseDto**](CompleteMediaUploadResponseDto.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **importsControllerCreate**
 > importsControllerCreate(householdId, createImportDto)
 
@@ -95,6 +140,49 @@ void (empty response body)
 
  - **Content-Type**: application/json
  - **Accept**: Not defined
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **importsControllerCreateMediaUpload**
+> MediaUploadResponseDto importsControllerCreateMediaUpload(householdId, createMediaUploadDto)
+
+
+
+### Example
+```dart
+import 'package:pantrypal_api/api.dart';
+
+final api = PantrypalApi().getImportsApi();
+final String householdId = householdId_example; // String | 
+final CreateMediaUploadDto createMediaUploadDto = ; // CreateMediaUploadDto | 
+
+try {
+    final response = api.importsControllerCreateMediaUpload(householdId, createMediaUploadDto);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling ImportsApi->importsControllerCreateMediaUpload: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **householdId** | **String**|  | 
+ **createMediaUploadDto** | [**CreateMediaUploadDto**](CreateMediaUploadDto.md)|  | 
+
+### Return type
+
+[**MediaUploadResponseDto**](MediaUploadResponseDto.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

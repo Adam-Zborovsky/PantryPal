@@ -43,10 +43,17 @@ dependencies:
   uuid: ^4.6.0
   intl: ^0.20.3
   google_fonts: ^8.2.1
+  firebase_core: ^4.12.1
+  firebase_messaging: ^16.4.3
+  socket_io_client: ^3.1.6
+  # Includes the upstream Android Gradle Plugin 9 plugin-registration fix.
+  file_picker: ^12.0.0-beta.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_secure_storage_platform_interface: ^2.0.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

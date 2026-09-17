@@ -18,7 +18,7 @@ part 'create_import_dto.g.dart';
 abstract class CreateImportDto implements Built<CreateImportDto, CreateImportDtoBuilder> {
   @BuiltValueField(wireName: r'sourceKind')
   CreateImportDtoSourceKindEnum get sourceKind;
-  // enum sourceKindEnum {  url,  text,  image,  audio,  video,  };
+  // enum sourceKindEnum {  url,  text,  image,  };
 
   @BuiltValueField(wireName: r'sourceInput')
   String get sourceInput;
@@ -130,10 +130,6 @@ class CreateImportDtoSourceKindEnum extends EnumClass {
   static const CreateImportDtoSourceKindEnum text = _$createImportDtoSourceKindEnum_text;
   @BuiltValueEnumConst(wireName: r'image')
   static const CreateImportDtoSourceKindEnum image = _$createImportDtoSourceKindEnum_image;
-  @BuiltValueEnumConst(wireName: r'audio')
-  static const CreateImportDtoSourceKindEnum audio = _$createImportDtoSourceKindEnum_audio;
-  @BuiltValueEnumConst(wireName: r'video')
-  static const CreateImportDtoSourceKindEnum video = _$createImportDtoSourceKindEnum_video;
 
   static Serializer<CreateImportDtoSourceKindEnum> get serializer => _$createImportDtoSourceKindEnumSerializer;
 

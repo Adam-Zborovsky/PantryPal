@@ -9,9 +9,17 @@ import 'package:pantrypal_api/src/auth/api_key_auth.dart';
 import 'package:pantrypal_api/src/auth/basic_auth.dart';
 import 'package:pantrypal_api/src/auth/bearer_auth.dart';
 import 'package:pantrypal_api/src/auth/oauth.dart';
+import 'package:pantrypal_api/src/api/activity_api.dart';
+import 'package:pantrypal_api/src/api/archive_api.dart';
 import 'package:pantrypal_api/src/api/auth_api.dart';
+import 'package:pantrypal_api/src/api/cooking_api.dart';
 import 'package:pantrypal_api/src/api/households_api.dart';
 import 'package:pantrypal_api/src/api/imports_api.dart';
+import 'package:pantrypal_api/src/api/metrics_api.dart';
+import 'package:pantrypal_api/src/api/notifications_api.dart';
+import 'package:pantrypal_api/src/api/recipes_api.dart';
+import 'package:pantrypal_api/src/api/system_api.dart';
+import 'package:pantrypal_api/src/api/trips_api.dart';
 
 class PantrypalApi {
   static const String basePath = r'http://localhost';
@@ -107,10 +115,28 @@ class PantrypalApi {
     }
   }
 
+  /// Get ActivityApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ActivityApi getActivityApi() {
+    return ActivityApi(dio, serializers);
+  }
+
+  /// Get ArchiveApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ArchiveApi getArchiveApi() {
+    return ArchiveApi(dio, serializers);
+  }
+
   /// Get AuthApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   AuthApi getAuthApi() {
     return AuthApi(dio, serializers);
+  }
+
+  /// Get CookingApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  CookingApi getCookingApi() {
+    return CookingApi(dio, serializers);
   }
 
   /// Get HouseholdsApi instance, base route and serializer can be overridden by a given but be careful,
@@ -123,5 +149,35 @@ class PantrypalApi {
   /// by doing that all interceptors will not be executed
   ImportsApi getImportsApi() {
     return ImportsApi(dio, serializers);
+  }
+
+  /// Get MetricsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  MetricsApi getMetricsApi() {
+    return MetricsApi(dio, serializers);
+  }
+
+  /// Get NotificationsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  NotificationsApi getNotificationsApi() {
+    return NotificationsApi(dio, serializers);
+  }
+
+  /// Get RecipesApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  RecipesApi getRecipesApi() {
+    return RecipesApi(dio, serializers);
+  }
+
+  /// Get SystemApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  SystemApi getSystemApi() {
+    return SystemApi(dio, serializers);
+  }
+
+  /// Get TripsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  TripsApi getTripsApi() {
+    return TripsApi(dio, serializers);
   }
 }

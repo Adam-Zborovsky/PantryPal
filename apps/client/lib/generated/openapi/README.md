@@ -47,14 +47,14 @@ Please follow the [installation procedure](#installation--usage) and then run th
 import 'package:pantrypal_api/pantrypal_api.dart';
 
 
-final api = PantrypalApi().getAuthApi();
-final LoginDto loginDto = ; // LoginDto | 
+final api = PantrypalApi().getActivityApi();
+final String householdId = householdId_example; // String | 
+final String limit = limit_example; // String | 
 
 try {
-    final response = await api.authControllerLogin(loginDto);
-    print(response);
+    api.activityControllerList(householdId, limit);
 } on DioException catch (e) {
-    print("Exception when calling AuthApi->authControllerLogin: $e\n");
+    print("Exception when calling ActivityApi->activityControllerList: $e\n");
 }
 
 ```
@@ -65,30 +65,80 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+[*ActivityApi*](doc/ActivityApi.md) | [**activityControllerList**](doc/ActivityApi.md#activitycontrollerlist) | **GET** /v1/households/{householdId}/activity | 
+[*ArchiveApi*](doc/ArchiveApi.md) | [**archiveControllerCompleteCoverUpload**](doc/ArchiveApi.md#archivecontrollercompletecoverupload) | **POST** /v1/households/{householdId}/archive/{cookingInstanceId}/cover/complete | 
+[*ArchiveApi*](doc/ArchiveApi.md) | [**archiveControllerCover**](doc/ArchiveApi.md#archivecontrollercover) | **GET** /v1/households/{householdId}/archive/{cookingInstanceId}/cover | 
+[*ArchiveApi*](doc/ArchiveApi.md) | [**archiveControllerCreateCoverUploadRequest**](doc/ArchiveApi.md#archivecontrollercreatecoveruploadrequest) | **POST** /v1/households/{householdId}/archive/{cookingInstanceId}/cover/upload-request | 
+[*ArchiveApi*](doc/ArchiveApi.md) | [**archiveControllerList**](doc/ArchiveApi.md#archivecontrollerlist) | **GET** /v1/households/{householdId}/archive | 
 [*AuthApi*](doc/AuthApi.md) | [**authControllerLogin**](doc/AuthApi.md#authcontrollerlogin) | **POST** /v1/auth/login | 
 [*AuthApi*](doc/AuthApi.md) | [**authControllerLogout**](doc/AuthApi.md#authcontrollerlogout) | **POST** /v1/auth/logout | 
 [*AuthApi*](doc/AuthApi.md) | [**authControllerRefresh**](doc/AuthApi.md#authcontrollerrefresh) | **POST** /v1/auth/refresh | 
 [*AuthApi*](doc/AuthApi.md) | [**authControllerRegister**](doc/AuthApi.md#authcontrollerregister) | **POST** /v1/auth/register | 
+[*CookingApi*](doc/CookingApi.md) | [**cookingControllerAssignTrip**](doc/CookingApi.md#cookingcontrollerassigntrip) | **PATCH** /v1/households/{householdId}/cooking/{cookingInstanceId} | 
+[*CookingApi*](doc/CookingApi.md) | [**cookingControllerCookAgain**](doc/CookingApi.md#cookingcontrollercookagain) | **POST** /v1/households/{householdId}/cooking/{cookingInstanceId}/cook-again | 
+[*CookingApi*](doc/CookingApi.md) | [**cookingControllerCreate**](doc/CookingApi.md#cookingcontrollercreate) | **POST** /v1/households/{householdId}/cooking | 
+[*CookingApi*](doc/CookingApi.md) | [**cookingControllerList**](doc/CookingApi.md#cookingcontrollerlist) | **GET** /v1/households/{householdId}/cooking | 
+[*CookingApi*](doc/CookingApi.md) | [**cookingControllerMarkCooked**](doc/CookingApi.md#cookingcontrollermarkcooked) | **POST** /v1/households/{householdId}/cooking/{cookingInstanceId}/mark-cooked | 
+[*CookingApi*](doc/CookingApi.md) | [**cookingControllerRequestTransfer**](doc/CookingApi.md#cookingcontrollerrequesttransfer) | **POST** /v1/households/{householdId}/cooking/{cookingInstanceId}/cook-transfer | 
+[*CookingApi*](doc/CookingApi.md) | [**cookingControllerResolveTransfer**](doc/CookingApi.md#cookingcontrollerresolvetransfer) | **POST** /v1/households/{householdId}/cooking/{cookingInstanceId}/cook-transfer/resolve | 
 [*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerJoin**](doc/HouseholdsApi.md#householdscontrollerjoin) | **POST** /v1/households/join | 
 [*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerLeave**](doc/HouseholdsApi.md#householdscontrollerleave) | **POST** /v1/households/{householdId}/leave | 
 [*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerList**](doc/HouseholdsApi.md#householdscontrollerlist) | **GET** /v1/households | 
 [*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerMembers**](doc/HouseholdsApi.md#householdscontrollermembers) | **GET** /v1/households/{householdId}/members | 
 [*HouseholdsApi*](doc/HouseholdsApi.md) | [**householdsControllerRotateCode**](doc/HouseholdsApi.md#householdscontrollerrotatecode) | **POST** /v1/households/{householdId}/invite-code/rotate | 
 [*ImportsApi*](doc/ImportsApi.md) | [**importsControllerCancel**](doc/ImportsApi.md#importscontrollercancel) | **POST** /v1/households/{householdId}/imports/{id}/cancel | 
+[*ImportsApi*](doc/ImportsApi.md) | [**importsControllerCompleteMediaUpload**](doc/ImportsApi.md#importscontrollercompletemediaupload) | **POST** /v1/households/{householdId}/imports/media-assets/{assetId}/complete | 
 [*ImportsApi*](doc/ImportsApi.md) | [**importsControllerCreate**](doc/ImportsApi.md#importscontrollercreate) | **POST** /v1/households/{householdId}/imports | 
+[*ImportsApi*](doc/ImportsApi.md) | [**importsControllerCreateMediaUpload**](doc/ImportsApi.md#importscontrollercreatemediaupload) | **POST** /v1/households/{householdId}/imports/media-assets/upload-url | 
 [*ImportsApi*](doc/ImportsApi.md) | [**importsControllerGet**](doc/ImportsApi.md#importscontrollerget) | **GET** /v1/households/{householdId}/imports/{id} | 
+[*MetricsApi*](doc/MetricsApi.md) | [**metricsControllerMetrics**](doc/MetricsApi.md#metricscontrollermetrics) | **GET** /v1/metrics | 
+[*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerList**](doc/NotificationsApi.md#notificationscontrollerlist) | **GET** /v1/households/{householdId}/notifications | 
+[*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerMarkRead**](doc/NotificationsApi.md#notificationscontrollermarkread) | **POST** /v1/households/{householdId}/notifications/{notificationId}/read | 
+[*NotificationsApi*](doc/NotificationsApi.md) | [**pushSubscriptionsControllerRemove**](doc/NotificationsApi.md#pushsubscriptionscontrollerremove) | **DELETE** /v1/push-subscriptions | 
+[*NotificationsApi*](doc/NotificationsApi.md) | [**pushSubscriptionsControllerUpsert**](doc/NotificationsApi.md#pushsubscriptionscontrollerupsert) | **POST** /v1/push-subscriptions | 
+[*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerList**](doc/RecipesApi.md#recipescontrollerlist) | **GET** /v1/households/{householdId}/recipes | 
+[*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerReview**](doc/RecipesApi.md#recipescontrollerreview) | **GET** /v1/households/{householdId}/recipes/{recipeId}/review | 
+[*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerSaveReview**](doc/RecipesApi.md#recipescontrollersavereview) | **PUT** /v1/households/{householdId}/recipes/{recipeId}/review | 
+[*SystemApi*](doc/SystemApi.md) | [**healthControllerLive**](doc/SystemApi.md#healthcontrollerlive) | **GET** /v1/live | 
+[*SystemApi*](doc/SystemApi.md) | [**healthControllerReady**](doc/SystemApi.md#healthcontrollerready) | **GET** /v1/ready | 
+[*TripsApi*](doc/TripsApi.md) | [**tripsControllerCancel**](doc/TripsApi.md#tripscontrollercancel) | **POST** /v1/households/{householdId}/trips/{tripId}/cancel | 
+[*TripsApi*](doc/TripsApi.md) | [**tripsControllerComplete**](doc/TripsApi.md#tripscontrollercomplete) | **POST** /v1/households/{householdId}/trips/{tripId}/complete | 
+[*TripsApi*](doc/TripsApi.md) | [**tripsControllerConfirm**](doc/TripsApi.md#tripscontrollerconfirm) | **POST** /v1/households/{householdId}/trips/{tripId}/confirm | 
+[*TripsApi*](doc/TripsApi.md) | [**tripsControllerCreate**](doc/TripsApi.md#tripscontrollercreate) | **POST** /v1/households/{householdId}/trips | 
+[*TripsApi*](doc/TripsApi.md) | [**tripsControllerDetail**](doc/TripsApi.md#tripscontrollerdetail) | **GET** /v1/households/{householdId}/trips/{tripId} | 
+[*TripsApi*](doc/TripsApi.md) | [**tripsControllerList**](doc/TripsApi.md#tripscontrollerlist) | **GET** /v1/households/{householdId}/trips | 
+[*TripsApi*](doc/TripsApi.md) | [**tripsControllerStart**](doc/TripsApi.md#tripscontrollerstart) | **POST** /v1/households/{householdId}/trips/{tripId}/start | 
+[*TripsApi*](doc/TripsApi.md) | [**tripsControllerUpdate**](doc/TripsApi.md#tripscontrollerupdate) | **PATCH** /v1/households/{householdId}/trips/{tripId} | 
+[*TripsApi*](doc/TripsApi.md) | [**tripsControllerUpdateItem**](doc/TripsApi.md#tripscontrollerupdateitem) | **PATCH** /v1/households/{householdId}/trips/{tripId}/items/{itemId} | 
 
 
 ## Documentation For Models
 
  - [AccountResponseDto](doc/AccountResponseDto.md)
  - [AuthSessionResponseDto](doc/AuthSessionResponseDto.md)
+ - [CompleteCoverUploadDto](doc/CompleteCoverUploadDto.md)
+ - [CompleteMediaUploadResponseDto](doc/CompleteMediaUploadResponseDto.md)
+ - [CookAgainDto](doc/CookAgainDto.md)
+ - [CreateCookingInstanceDto](doc/CreateCookingInstanceDto.md)
+ - [CreateCoverUploadDto](doc/CreateCoverUploadDto.md)
  - [CreateImportDto](doc/CreateImportDto.md)
+ - [CreateMediaUploadDto](doc/CreateMediaUploadDto.md)
+ - [CreateShoppingTripDto](doc/CreateShoppingTripDto.md)
  - [HouseholdResponseDto](doc/HouseholdResponseDto.md)
  - [JoinHouseholdDto](doc/JoinHouseholdDto.md)
  - [LoginDto](doc/LoginDto.md)
+ - [MediaUploadResponseDto](doc/MediaUploadResponseDto.md)
  - [RefreshDto](doc/RefreshDto.md)
  - [RegisterDto](doc/RegisterDto.md)
+ - [RemovePushSubscriptionDto](doc/RemovePushSubscriptionDto.md)
+ - [RequestCookTransferDto](doc/RequestCookTransferDto.md)
+ - [ResolveCookTransferDto](doc/ResolveCookTransferDto.md)
+ - [ReviewIngredientDto](doc/ReviewIngredientDto.md)
+ - [SaveRecipeReviewDto](doc/SaveRecipeReviewDto.md)
+ - [UpdateCookingTripDto](doc/UpdateCookingTripDto.md)
+ - [UpdateShoppingItemDto](doc/UpdateShoppingItemDto.md)
+ - [UpdateShoppingTripDto](doc/UpdateShoppingTripDto.md)
+ - [UpsertPushSubscriptionDto](doc/UpsertPushSubscriptionDto.md)
 
 
 ## Documentation For Authorization

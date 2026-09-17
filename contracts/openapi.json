@@ -118,6 +118,42 @@
         ]
       }
     },
+    "/v1/households/{householdId}/activity": {
+      "get": {
+        "operationId": "ActivityController_list",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Newest household activity events."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "activity"
+        ]
+      }
+    },
     "/v1/households": {
       "get": {
         "operationId": "HouseholdsController_list",
@@ -250,6 +286,94 @@
         ]
       }
     },
+    "/v1/households/{householdId}/imports/media-assets/upload-url": {
+      "post": {
+        "operationId": "ImportsController_createMediaUpload",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMediaUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaUploadResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "imports"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/imports/media-assets/{assetId}/complete": {
+      "post": {
+        "operationId": "ImportsController_completeMediaUpload",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assetId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompleteMediaUploadResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "imports"
+        ]
+      }
+    },
     "/v1/households/{householdId}/imports": {
       "post": {
         "operationId": "ImportsController_create",
@@ -357,6 +481,1058 @@
         ],
         "tags": [
           "imports"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/recipes": {
+      "get": {
+        "operationId": "RecipesController_list",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recipes"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/recipes/{recipeId}/review": {
+      "get": {
+        "operationId": "RecipesController_review",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recipeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recipes"
+        ]
+      },
+      "put": {
+        "operationId": "RecipesController_saveReview",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recipeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveRecipeReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "recipes"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/cooking": {
+      "get": {
+        "operationId": "CookingController_list",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cooking"
+        ]
+      },
+      "post": {
+        "operationId": "CookingController_create",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCookingInstanceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cooking"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/cooking/{cookingInstanceId}": {
+      "patch": {
+        "operationId": "CookingController_assignTrip",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cookingInstanceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCookingTripDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cooking"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/cooking/{cookingInstanceId}/cook-transfer": {
+      "post": {
+        "operationId": "CookingController_requestTransfer",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cookingInstanceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCookTransferDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cooking"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/cooking/{cookingInstanceId}/cook-transfer/resolve": {
+      "post": {
+        "operationId": "CookingController_resolveTransfer",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cookingInstanceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveCookTransferDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cooking"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/cooking/{cookingInstanceId}/mark-cooked": {
+      "post": {
+        "operationId": "CookingController_markCooked",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cookingInstanceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cooking"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/cooking/{cookingInstanceId}/cook-again": {
+      "post": {
+        "operationId": "CookingController_cookAgain",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cookingInstanceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CookAgainDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cooking"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/trips": {
+      "get": {
+        "operationId": "TripsController_list",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "trips"
+        ]
+      },
+      "post": {
+        "operationId": "TripsController_create",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShoppingTripDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/trips/{tripId}": {
+      "get": {
+        "operationId": "TripsController_detail",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "trips"
+        ]
+      },
+      "patch": {
+        "operationId": "TripsController_update",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShoppingTripDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/trips/{tripId}/confirm": {
+      "post": {
+        "operationId": "TripsController_confirm",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/trips/{tripId}/start": {
+      "post": {
+        "operationId": "TripsController_start",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/trips/{tripId}/complete": {
+      "post": {
+        "operationId": "TripsController_complete",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/trips/{tripId}/cancel": {
+      "post": {
+        "operationId": "TripsController_cancel",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/trips/{tripId}/items/{itemId}": {
+      "patch": {
+        "operationId": "TripsController_updateItem",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShoppingItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/archive": {
+      "get": {
+        "operationId": "ArchiveController_list",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "archive"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/archive/{cookingInstanceId}/cover/upload-request": {
+      "post": {
+        "operationId": "ArchiveController_createCoverUploadRequest",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cookingInstanceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCoverUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "archive"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/archive/{cookingInstanceId}/cover/complete": {
+      "post": {
+        "operationId": "ArchiveController_completeCoverUpload",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cookingInstanceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteCoverUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "archive"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/archive/{cookingInstanceId}/cover": {
+      "get": {
+        "operationId": "ArchiveController_cover",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cookingInstanceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "archive"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/notifications": {
+      "get": {
+        "operationId": "NotificationsController_list",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/v1/households/{householdId}/notifications/{notificationId}/read": {
+      "post": {
+        "operationId": "NotificationsController_markRead",
+        "parameters": [
+          {
+            "name": "householdId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "notificationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/v1/push-subscriptions": {
+      "post": {
+        "operationId": "PushSubscriptionsController_upsert",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertPushSubscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      },
+      "delete": {
+        "operationId": "PushSubscriptionsController_remove",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemovePushSubscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/v1/live": {
+      "get": {
+        "operationId": "HealthController_live",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The API process is live."
+          }
+        },
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/v1/ready": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The API is ready to accept requests."
+          }
+        },
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/v1/metrics": {
+      "get": {
+        "operationId": "MetricsController_metrics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Metrics"
         ]
       }
     }
@@ -541,6 +1717,79 @@
           "code"
         ]
       },
+      "CreateMediaUploadDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "image"
+            ]
+          },
+          "mimeType": {
+            "type": "string",
+            "example": "image/jpeg"
+          },
+          "byteSize": {
+            "type": "number",
+            "description": "Exact client-side byte count.",
+            "example": 524288
+          }
+        },
+        "required": [
+          "kind",
+          "mimeType",
+          "byteSize"
+        ]
+      },
+      "MediaUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "assetId": {
+            "type": "string"
+          },
+          "uploadUrl": {
+            "type": "string",
+            "description": "Short-lived signed PUT URL. Treat as a secret."
+          },
+          "uploadExpiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "assetExpiresAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "assetId",
+          "uploadUrl",
+          "uploadExpiresAt",
+          "assetExpiresAt"
+        ]
+      },
+      "CompleteMediaUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "assetId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "READY"
+            ]
+          },
+          "byteSize": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "assetId",
+          "status",
+          "byteSize"
+        ]
+      },
       "CreateImportDto": {
         "type": "object",
         "properties": {
@@ -549,9 +1798,7 @@
             "enum": [
               "url",
               "text",
-              "image",
-              "audio",
-              "video"
+              "image"
             ]
           },
           "sourceInput": {
@@ -561,6 +1808,263 @@
         "required": [
           "sourceKind",
           "sourceInput"
+        ]
+      },
+      "ReviewIngredientDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "quantityMin": {
+            "type": "object"
+          },
+          "quantityMax": {
+            "type": "object"
+          },
+          "originalUnit": {
+            "type": "object"
+          },
+          "preparationNote": {
+            "type": "object"
+          },
+          "classification": {
+            "type": "string",
+            "enum": [
+              "REQUIRED",
+              "FLEXIBLE",
+              "PANTRY_STAPLE",
+              "GARNISH"
+            ]
+          },
+          "includeInShopping": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "classification",
+          "includeInShopping"
+        ]
+      },
+      "SaveRecipeReviewDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "originalServings": {
+            "type": "object"
+          },
+          "yieldWording": {
+            "type": "object"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewIngredientDto"
+            }
+          },
+          "instructions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expectedRevision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "ingredients",
+          "instructions",
+          "expectedRevision"
+        ]
+      },
+      "CreateCookingInstanceDto": {
+        "type": "object",
+        "properties": {
+          "recipeId": {
+            "type": "string"
+          },
+          "targetServings": {
+            "type": "string",
+            "description": "Desired serving count, encoded as a positive decimal."
+          },
+          "cookingDate": {
+            "type": "string",
+            "description": "ISO 8601 cooking date and time. Omit for Quick Cook."
+          },
+          "shoppingTripId": {
+            "type": "string"
+          },
+          "assignmentMode": {
+            "type": "string",
+            "enum": [
+              "AUTOMATIC",
+              "MANUAL"
+            ],
+            "default": "AUTOMATIC"
+          }
+        },
+        "required": [
+          "recipeId",
+          "targetServings"
+        ]
+      },
+      "UpdateCookingTripDto": {
+        "type": "object",
+        "properties": {
+          "shoppingTripId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "shoppingTripId"
+        ]
+      },
+      "RequestCookTransferDto": {
+        "type": "object",
+        "properties": {
+          "targetAccountId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "targetAccountId"
+        ]
+      },
+      "ResolveCookTransferDto": {
+        "type": "object",
+        "properties": {
+          "accept": {
+            "type": "boolean",
+            "description": "True accepts responsibility; false declines it."
+          }
+        },
+        "required": [
+          "accept"
+        ]
+      },
+      "CookAgainDto": {
+        "type": "object",
+        "properties": {
+          "cookingDate": {
+            "type": "string",
+            "description": "ISO 8601 cooking date and time for the new instance."
+          },
+          "targetServings": {
+            "type": "string",
+            "description": "Target serving count. Defaults to the archived instance."
+          }
+        }
+      },
+      "CreateShoppingTripDto": {
+        "type": "object",
+        "properties": {
+          "scheduledFor": {
+            "type": "string",
+            "description": "ISO 8601 planned shopping date and time."
+          }
+        }
+      },
+      "UpdateShoppingTripDto": {
+        "type": "object",
+        "properties": {
+          "scheduledFor": {
+            "type": "string",
+            "description": "ISO 8601 replacement shopping date and time."
+          }
+        },
+        "required": [
+          "scheduledFor"
+        ]
+      },
+      "UpdateShoppingItemDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "NEED_TO_BUY",
+              "CONFIRMED_AT_HOME",
+              "CHECK_AGAIN",
+              "PARTIALLY_AVAILABLE",
+              "PURCHASED",
+              "IGNORED"
+            ]
+          },
+          "knownQuantity": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "CreateCoverUploadDto": {
+        "type": "object",
+        "properties": {
+          "mimeType": {
+            "type": "string",
+            "example": "image/jpeg"
+          },
+          "byteSize": {
+            "type": "number",
+            "description": "Exact client-side byte count.",
+            "example": 524288
+          }
+        },
+        "required": [
+          "mimeType",
+          "byteSize"
+        ]
+      },
+      "CompleteCoverUploadDto": {
+        "type": "object",
+        "properties": {
+          "assetId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "assetId"
+        ]
+      },
+      "UpsertPushSubscriptionDto": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "android"
+            ]
+          },
+          "endpoint": {
+            "type": "string",
+            "description": "Firebase Cloud Messaging registration token for this device."
+          }
+        },
+        "required": [
+          "platform",
+          "endpoint"
+        ]
+      },
+      "RemovePushSubscriptionDto": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "description": "Firebase Cloud Messaging registration token for this device."
+          }
+        },
+        "required": [
+          "endpoint"
         ]
       }
     }
