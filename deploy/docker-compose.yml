@@ -10,13 +10,10 @@ services:
       HOST: 0.0.0.0
       PORT: 8181
       APP_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-pantrypal}:${POSTGRES_PASSWORD}@pantrypal-db:5432/${POSTGRES_DB:-pantrypal}?schema=public
       REDIS_URL: redis://pantrypal-redis:6379
       S3_ENDPOINT: http://pantrypal-minio:9000
       S3_REGION: us-east-1
       S3_BUCKET: ${S3_BUCKET:-pantrypal}
-      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
-      S3_SECRET_KEY: ${S3_SECRET_KEY}
       S3_FORCE_PATH_STYLE: "true"
       FFMPEG_PATH: ffmpeg
       FFPROBE_PATH: ffprobe
@@ -41,13 +38,10 @@ services:
     environment:
       APP_ENV: production
       RUN_MIGRATIONS: "false"
-      DATABASE_URL: postgresql://${POSTGRES_USER:-pantrypal}:${POSTGRES_PASSWORD}@pantrypal-db:5432/${POSTGRES_DB:-pantrypal}?schema=public
       REDIS_URL: redis://pantrypal-redis:6379
       S3_ENDPOINT: http://pantrypal-minio:9000
       S3_REGION: us-east-1
       S3_BUCKET: ${S3_BUCKET:-pantrypal}
-      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
-      S3_SECRET_KEY: ${S3_SECRET_KEY}
       S3_FORCE_PATH_STYLE: "true"
       FFMPEG_PATH: ffmpeg
       FFPROBE_PATH: ffprobe
@@ -82,10 +76,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-pantrypal}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-pantrypal}
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 10s
@@ -117,9 +107,6 @@ services:
     command: minio server /data
     env_file:
       - .env
-    environment:
-      MINIO_ROOT_USER: ${S3_ACCESS_KEY}
-      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
     healthcheck:
       test: [ "CMD", "mc", "ready", "local" ]
       interval: 10s
@@ -136,12 +123,14 @@ services:
     depends_on:
       pantrypal-minio:
         condition: service_healthy
+    env_file:
+      - .env
     networks:
       - pantrypal-internal
     entrypoint: >
       /bin/sh -c "
-      mc alias set local http://pantrypal-minio:9000 $${S3_ACCESS_KEY} $${S3_SECRET_KEY} &&
-      mc mb --ignore-existing local/$${S3_BUCKET:-pantrypal}
+      mc alias set local http://pantrypal-minio:9000 \"$$S3_ACCESS_KEY\" \"$$S3_SECRET_KEY\" &&
+      mc mb --ignore-existing local/\"$${S3_BUCKET:-pantrypal}\"
       "
 
 networks:
