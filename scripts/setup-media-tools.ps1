@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $venvPath = Join-Path $projectRoot '.media-tools-venv'
-$requirements = Join-Path $PSScriptRoot 'media-tools-requirements.txt'
+$requirements = Join-Path $projectRoot 'media-tools-requirements.txt'
 
 & $Python -m venv $venvPath
 & (Join-Path $venvPath 'Scripts\python.exe') -m pip install --upgrade pip

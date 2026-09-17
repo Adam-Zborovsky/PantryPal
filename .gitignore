@@ -21,3 +21,4 @@ apps/client/.packages
 *.iml
 Thumbs.db
 .DS_Store
+/apps/client/android/app/google-services.json
