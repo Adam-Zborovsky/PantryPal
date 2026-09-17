@@ -15,6 +15,7 @@
     "start:worker": "ts-node src/worker.ts",
     "start:worker:prod": "node dist/worker",
     "cli": "ts-node src/cli.ts",
+    "cli:prod": "node dist/cli",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "contract:generate": "ts-node src/openapi/generate.ts",

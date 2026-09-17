@@ -38,13 +38,13 @@ docker compose up -d --build
 Generate initial beta invite token:
 
 ```sh
-docker compose exec pantrypal-api npm run cli -- beta-invite
+docker compose exec pantrypal-api node dist/cli.js beta-invite
 ```
 
 Reset operator password:
 
 ```sh
-docker compose exec pantrypal-api npm run cli -- reset-password <email> <new-password-min-12>
+docker compose exec pantrypal-api node dist/cli.js reset-password <email> <new-password-min-12>
 ```
 
 ## Deployment prerequisites still requiring an explicit decision
