@@ -63,7 +63,7 @@ The eventual VPS topology will place static Flutter web hosting, API, worker, Po
 
 ## Provider and platform policy
 
-Gemini defaults to `gemini-2.5-flash` but is accessed through a configurable provider abstraction. YouTube credentials are optional. Instagram/TikTok downloads are best effort, disabled by default, and never use household cookies; paste, screenshots, uploads, and manual entry remain available. Live provider smoke tests require explicit credentials and are not represented as successful by mock tests.
+Gemini defaults to `gemini-3.6-flash` but is accessed through a configurable provider abstraction. YouTube credentials are optional. Instagram/TikTok downloads are best effort, disabled by default, and never use household cookies; paste, screenshots, uploads, and manual entry remain available. Live provider smoke tests require explicit credentials and are not represented as successful by mock tests.
 
 ## Operator work
 
