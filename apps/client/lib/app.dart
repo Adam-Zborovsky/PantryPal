@@ -54,29 +54,36 @@ class _SessionRestoring extends StatelessWidget {
 class PantryPalTheme {
   PantryPalTheme._();
 
-  // Primitive tokens
-  static const cream = Color(0xFFFFFBEB);
+  // Primitive tokens — Direction A "Diner Board" (see DESIGN.md)
+  static const cream = Color(0xFFFFF7E8);
   static const paper = Color(0xFFFFFFFF);
-  static const terracotta = Color(0xFF9A3412);
-  static const green = Color(0xFF059669);
-  static const ink = Color(0xFF0F172A);
-  static const line = Color(0xFFE7E5E4);
-  static const darkCanvas = Color(0xFF17221F);
-  static const darkSurface = Color(0xFF22312D);
-  static const radius = 14.0;
+  static const tomato = Color(0xFFE23D28);
+  static const butter = Color(0xFFFFD447);
+  static const ink = Color(0xFF23283B);
+  static const green = Color(0xFF3E8E4C);
+  static const amber = Color(0xFFB45309);
+  static const line = Color(0xFFF0E8D6);
+  static const darkCanvas = Color(0xFF1D2029);
+  static const darkSurface = Color(0xFF272B38);
+  static const darkLine = Color(0x26FFF7E8);
+  static const radius = 16.0;
 
   static ThemeData light() => _theme(
     brightness: Brightness.light,
     canvas: cream,
     surface: paper,
     content: ink,
+    lineColor: line,
+    cardBorder: ink,
   );
 
   static ThemeData dark() => _theme(
     brightness: Brightness.dark,
     canvas: darkCanvas,
     surface: darkSurface,
-    content: const Color(0xFFF8FAFC),
+    content: const Color(0xFFF5EFE2),
+    lineColor: darkLine,
+    cardBorder: darkLine,
   );
 
   static ThemeData _theme({
@@ -84,22 +91,25 @@ class PantryPalTheme {
     required Color canvas,
     required Color surface,
     required Color content,
+    required Color lineColor,
+    required Color cardBorder,
   }) {
     final scheme = ColorScheme.fromSeed(
-      seedColor: terracotta,
+      seedColor: tomato,
       brightness: brightness,
-      primary: terracotta,
-      secondary: green,
+      primary: tomato,
+      secondary: butter,
+      tertiary: amber,
       surface: surface,
       onSurface: content,
     );
-    final body = GoogleFonts.nunitoSansTextTheme().apply(
+    final body = GoogleFonts.workSansTextTheme().apply(
       bodyColor: content,
       displayColor: content,
     );
     final outlined = OutlineInputBorder(
       borderRadius: BorderRadius.circular(radius),
-      borderSide: const BorderSide(color: line),
+      borderSide: BorderSide(color: lineColor),
     );
     return ThemeData(
       useMaterial3: true,
@@ -112,15 +122,15 @@ class PantryPalTheme {
         surfaceTintColor: Colors.transparent,
       ),
       textTheme: body.copyWith(
-        displaySmall: GoogleFonts.baloo2(
+        displaySmall: GoogleFonts.fraunces(
           textStyle: body.displaySmall,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w900,
         ),
-        headlineSmall: GoogleFonts.baloo2(
+        headlineSmall: GoogleFonts.fraunces(
           textStyle: body.headlineSmall,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
         ),
-        titleLarge: GoogleFonts.baloo2(
+        titleLarge: GoogleFonts.fraunces(
           textStyle: body.titleLarge,
           fontWeight: FontWeight.w700,
         ),
@@ -131,17 +141,23 @@ class PantryPalTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radius),
-          side: const BorderSide(color: line),
+          side: BorderSide(color: cardBorder, width: 1.75),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(52),
-          backgroundColor: terracotta,
-          foregroundColor: Colors.white,
+          backgroundColor: butter,
+          foregroundColor: ink,
+          elevation: 3,
+          shadowColor: ink.withValues(alpha: 0.9),
+          side: BorderSide(
+            color: brightness == Brightness.light ? ink : lineColor,
+            width: 2,
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radius),
+            borderRadius: BorderRadius.circular(radius - 2),
           ),
         ),
       ),
@@ -149,7 +165,7 @@ class PantryPalTheme {
         style: OutlinedButton.styleFrom(
           minimumSize: const Size.fromHeight(52),
           foregroundColor: content,
-          side: const BorderSide(color: line),
+          side: BorderSide(color: lineColor),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
           ),
@@ -165,7 +181,7 @@ class PantryPalTheme {
         border: outlined,
         enabledBorder: outlined,
         focusedBorder: outlined.copyWith(
-          borderSide: const BorderSide(color: terracotta, width: 2),
+          borderSide: BorderSide(color: tomato, width: 2),
         ),
         errorBorder: outlined.copyWith(
           borderSide: BorderSide(color: scheme.error),
@@ -177,9 +193,9 @@ class PantryPalTheme {
       navigationBarTheme: NavigationBarThemeData(
         height: 76,
         backgroundColor: surface,
-        indicatorColor: terracotta.withValues(alpha: 0.15),
+        indicatorColor: butter.withValues(alpha: 0.65),
         labelTextStyle: WidgetStatePropertyAll(
-          GoogleFonts.nunitoSans(fontSize: 12, fontWeight: FontWeight.w700),
+          GoogleFonts.workSans(fontSize: 12, fontWeight: FontWeight.w700),
         ),
       ),
     );
