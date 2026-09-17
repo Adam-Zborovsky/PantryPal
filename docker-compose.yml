@@ -1,7 +1,7 @@
 services:
   pantrypal-api:
     build:
-      context: ../apps/api
+      context: ./apps/api
     container_name: pantrypal-api
     restart: unless-stopped
     env_file:
@@ -29,10 +29,10 @@ services:
 
   pantrypal-worker:
     build:
-      context: ../apps/api
+      context: ./apps/api
     container_name: pantrypal-worker
     restart: unless-stopped
-    command: ["node", "dist/worker.js"]
+    command: [ "node", "dist/worker.js" ]
     env_file:
       - .env
     environment:
@@ -59,7 +59,7 @@ services:
 
   pantrypal-frontend:
     build:
-      context: ../apps/client
+      context: ./apps/client
       args:
         API_BASE_URL: ${API_BASE_URL:?Set API_BASE_URL in deploy/.env}
     container_name: pantrypal-frontend
@@ -128,10 +128,7 @@ services:
     networks:
       - pantrypal-internal
     entrypoint: >
-      /bin/sh -c "
-      mc alias set local http://pantrypal-minio:9000 \"$$S3_ACCESS_KEY\" \"$$S3_SECRET_KEY\" &&
-      mc mb --ignore-existing local/\"$${S3_BUCKET:-pantrypal}\"
-      "
+      /bin/sh -c " mc alias set local http://pantrypal-minio:9000 \"$$S3_ACCESS_KEY\" \"$$S3_SECRET_KEY\" && mc mb --ignore-existing local/\"$${S3_BUCKET:-pantrypal}\" "
 
 networks:
   pantrypal-internal:
