@@ -6,10 +6,24 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../shared/app_log.dart';
 
-const apiBaseUrl = String.fromEnvironment(
+const _rawApiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
   defaultValue: 'http://localhost:3001/v1',
 );
+
+String _normalizeApiBaseUrl(String raw) {
+  var trimmed = raw.trim();
+  if (trimmed.isEmpty) return 'http://localhost:3001/v1';
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+    trimmed = 'https://$trimmed';
+  }
+  while (trimmed.endsWith('/')) {
+    trimmed = trimmed.substring(0, trimmed.length - 1);
+  }
+  return trimmed;
+}
+
+final apiBaseUrl = _normalizeApiBaseUrl(_rawApiBaseUrl);
 
 final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
   final repository = SessionRepository();
