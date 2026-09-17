@@ -15,8 +15,20 @@ export interface RecipeAnalysisResult {
   completeness: number;
 }
 
+export interface RecipeAnalysisInput {
+  title?: string;
+  servings?: string;
+  ingredients: string[];
+  instructions: string[];
+  text: string;
+  sourceUri?: string;
+  inlineData?: { mimeType: string; data: string };
+  inlineImages?: Array<{ mimeType: string; data: string }>;
+  fileData?: { mimeType: string; fileUri: string };
+}
+
 export interface RecipeAnalysisProvider {
-  analyzeText(input: { title?: string; servings?: string; ingredients: string[]; instructions: string[]; text: string }): Promise<RecipeAnalysisResult>;
+  analyzeText(input: RecipeAnalysisInput): Promise<RecipeAnalysisResult>;
 }
 
 export const RECIPE_ANALYSIS_PROVIDER = Symbol('RECIPE_ANALYSIS_PROVIDER');
