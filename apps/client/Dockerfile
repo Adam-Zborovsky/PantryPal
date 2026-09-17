@@ -1,4 +1,4 @@
-FROM ghcr.io/cirruslabs/flutter:3.44.4 AS build
+FROM ghcr.io/cirruslabs/flutter:3.44.0 AS build
 WORKDIR /app
 
 ARG API_BASE_URL
