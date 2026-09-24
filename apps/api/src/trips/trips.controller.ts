@@ -135,4 +135,18 @@ export class TripsController {
       input.reason === 'REMOVED' ? 'REMOVED' : 'BOUGHT_ELSEWHERE',
     );
   }
+  @Post(':tripId/items/:itemId/restore')
+  restoreItem(
+    @Req() request: AuthenticatedRequest,
+    @Param('householdId') householdId: string,
+    @Param('tripId') tripId: string,
+    @Param('itemId') itemId: string,
+  ) {
+    return this.trips.restoreItem(
+      request.user.sub,
+      householdId,
+      tripId,
+      itemId,
+    );
+  }
 }

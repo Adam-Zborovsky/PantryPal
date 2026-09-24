@@ -384,6 +384,27 @@ export class TripsService {
     return presented;
   }
 
+  async restoreItem(
+    accountId: string,
+    householdId: string,
+    tripId: string,
+    itemId: string,
+  ) {
+    await this.access.requireActiveMembership(accountId, householdId);
+    const item = await this.prisma.shoppingItem.findFirst({
+      where: { id: itemId, householdId, shoppingTripId: tripId, archivedAt: { not: null } },
+    });
+    if (!item)
+      throw new NotFoundException('Archived shopping item not found in this household trip.');
+    const updated = await this.prisma.shoppingItem.update({
+      where: { id: item.id },
+      data: { archivedAt: null, archivedReason: null, revision: { increment: 1 } },
+    });
+    await this.record(accountId, householdId, item.id, 'shopping_item.restored', { tripId });
+    const [presented] = await this.presentItems(householdId, [updated]);
+    return presented;
+  }
+
   async createManualItem(
     accountId: string,
     householdId: string,
@@ -950,6 +971,7 @@ export class TripsService {
       canonicalIngredientId: string | null;
       demand: Prisma.JsonValue;
       unmeasured: boolean;
+      manualEntry: boolean;
       manualQuantity: Prisma.Decimal | null;
       manualUnit: string | null;
       pickedUpAt: Date | null;
@@ -1029,6 +1051,7 @@ export class TripsService {
         revision: item.revision,
         demand,
         unmeasured: item.unmeasured,
+        manualEntry: item.manualEntry,
         ...(item.manualQuantity
           ? {
               manualQuantity: item.manualQuantity.toString(),
