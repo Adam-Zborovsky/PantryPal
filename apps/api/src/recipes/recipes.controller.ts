@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Post,
   Put,
   Req,
   UseGuards,
@@ -10,7 +11,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/access-token.guard';
 import type { AuthenticatedRequest } from '../auth/auth.types';
-import { SaveRecipeReviewDto } from './recipes.dto';
+import { CreateRecipeDto, SaveRecipeReviewDto } from './recipes.dto';
 import { RecipesService } from './recipes.service';
 
 @ApiTags('recipes')
@@ -19,6 +20,15 @@ import { RecipesService } from './recipes.service';
 @Controller('households/:householdId/recipes')
 export class RecipesController {
   constructor(private readonly recipes: RecipesService) {}
+
+  @Post()
+  create(
+    @Req() request: AuthenticatedRequest,
+    @Param('householdId') householdId: string,
+    @Body() input: CreateRecipeDto,
+  ) {
+    return this.recipes.create(request.user.sub, householdId, input);
+  }
 
   @Get()
   list(

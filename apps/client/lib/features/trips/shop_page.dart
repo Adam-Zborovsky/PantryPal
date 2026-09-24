@@ -31,6 +31,13 @@ class ShopPage extends ConsumerStatefulWidget {
 class _ShopPageState extends ConsumerState<ShopPage> {
   String? _selectedTripId;
 
+  Future<void> _refresh() async {
+    final selected = _selectedTripId;
+    ref.invalidate(shopTripsProvider);
+    if (selected != null) ref.invalidate(tripDetailProvider(selected));
+    await ref.read(shopTripsProvider.future);
+  }
+
   @override
   Widget build(BuildContext context) {
     final trips = ref.watch(shopTripsProvider);
@@ -40,21 +47,25 @@ class _ShopPageState extends ConsumerState<ShopPage> {
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            children: [
-              Text('Shop', style: Theme.of(context).textTheme.displaySmall),
-              const SizedBox(height: 4),
-              const Text('Keep the shared list clear while you shop.'),
-              const SizedBox(height: 20),
-              trips.when(
-                loading: () => const _ShopLoading(),
-                error: (_, _) => _ShopError(
-                  onRetry: () => ref.invalidate(shopTripsProvider),
+          child: RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              children: [
+                Text('Shop', style: Theme.of(context).textTheme.displaySmall),
+                const SizedBox(height: 4),
+                const Text('Keep the shared list clear while you shop.'),
+                const SizedBox(height: 20),
+                trips.when(
+                  loading: () => const _ShopLoading(),
+                  error: (_, _) => _ShopError(
+                    onRetry: () => ref.invalidate(shopTripsProvider),
+                  ),
+                  data: _buildTrips,
                 ),
-                data: _buildTrips,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -179,6 +190,22 @@ class _TripShoppingView extends ConsumerWidget {
                   icon: const Icon(Icons.edit_calendar_outlined),
                   label: const Text('Change date'),
                 ),
+                if (status == 'PROPOSED' ||
+                    status == 'CONFIRMED' ||
+                    status == 'IN_PROGRESS') ...[
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    onPressed: () async {
+                      final added = await showAddShoppingItemSheet(
+                        context,
+                        tripId: id,
+                      );
+                      if (added) onChanged();
+                    },
+                    icon: const Icon(Icons.add_shopping_cart_outlined),
+                    label: const Text('Add item'),
+                  ),
+                ],
               ],
             ),
           ),
@@ -228,6 +255,17 @@ class _TripShoppingView extends ConsumerWidget {
             icon: const Icon(Icons.done_all_outlined),
             label: const Text('Complete shopping'),
           ),
+        if (status == 'PROPOSED' || status == 'CONFIRMED') ...[
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () => _transition(context, ref, id, 'cancel', onChanged),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: PantryPalTheme.tomato,
+            ),
+            icon: const Icon(Icons.cancel_outlined),
+            label: const Text('Cancel trip'),
+          ),
+        ],
       ],
     );
   }
@@ -330,6 +368,108 @@ class _TripShoppingView extends ConsumerWidget {
       ),
     );
   }
+}
+
+Future<bool> showAddShoppingItemSheet(
+  BuildContext context, {
+  required String tripId,
+}) async {
+  final added = await showModalBottomSheet<bool>(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) => _AddShoppingItemSheet(tripId: tripId),
+  );
+  return added ?? false;
+}
+
+class _AddShoppingItemSheet extends ConsumerStatefulWidget {
+  const _AddShoppingItemSheet({required this.tripId});
+  final String tripId;
+
+  @override
+  ConsumerState<_AddShoppingItemSheet> createState() =>
+      _AddShoppingItemSheetState();
+}
+
+class _AddShoppingItemSheetState extends ConsumerState<_AddShoppingItemSheet> {
+  final _name = TextEditingController();
+  var _saving = false;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_name.text.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Enter an item to add.')));
+      return;
+    }
+    setState(() => _saving = true);
+    try {
+      await ref
+          .read(sessionRepositoryProvider)
+          .addShoppingItem(tripId: widget.tripId, displayName: _name.text);
+      if (mounted) Navigator.of(context).pop(true);
+    } on DioException {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not add this item. Try again.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.fromLTRB(
+      24,
+      24,
+      24,
+      24 + MediaQuery.viewInsetsOf(context).bottom,
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Add to the shared list',
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Add anything your household needs, even when it is not part of a recipe.',
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _name,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(
+            labelText: 'Item',
+            hintText: 'Dish soap',
+          ),
+          onSubmitted: (_) => _saving ? null : _save(),
+        ),
+        const SizedBox(height: 20),
+        FilledButton.icon(
+          onPressed: _saving ? null : _save,
+          icon: _saving
+              ? const SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.add_shopping_cart_outlined),
+          label: Text(_saving ? 'Adding item…' : 'Add item'),
+        ),
+      ],
+    ),
+  );
 }
 
 class _ShoppingItemRow extends ConsumerWidget {

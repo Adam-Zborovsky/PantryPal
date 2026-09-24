@@ -39,6 +39,12 @@ class _PlanPageState extends ConsumerState<PlanPage> {
     _days = List.generate(21, (index) => today.add(Duration(days: index)));
   }
 
+  Future<void> _refresh() async {
+    ref.invalidate(planProvider);
+    ref.invalidate(shopTripsProvider);
+    await ref.read(planProvider.future);
+  }
+
   @override
   Widget build(BuildContext context) {
     final entries = ref.watch(planProvider);
@@ -49,51 +55,55 @@ class _PlanPageState extends ConsumerState<PlanPage> {
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            children: [
-              Text('Plan', style: Theme.of(context).textTheme.displaySmall),
-              const SizedBox(height: 4),
-              const Text('See what is cooking and who is responsible.'),
-              const SizedBox(height: 20),
-              _PlanStrip(
-                days: _days,
-                selectedIndex: _selectedDay,
-                onSelected: (index) => setState(() => _selectedDay = index),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                DateFormat('EEEE, d MMMM').format(selected),
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              entries.when(
-                loading: () => const _PlanLoading(),
-                error: (_, _) =>
-                    _PlanError(onRetry: () => ref.invalidate(planProvider)),
-                data: (items) {
-                  final scheduled = _forDay(items, selected);
-                  if (scheduled.isEmpty) return const _PlanEmpty();
-                  return Column(
-                    children: [
-                      for (final item in scheduled) ...[
-                        _MealCard(
-                          item: item,
-                          onOpen: () => _showMealDetail(context, item),
-                        ),
-                        const SizedBox(height: 12),
+          child: RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              children: [
+                Text('Plan', style: Theme.of(context).textTheme.displaySmall),
+                const SizedBox(height: 4),
+                const Text('See what is cooking and who is responsible.'),
+                const SizedBox(height: 20),
+                _PlanStrip(
+                  days: _days,
+                  selectedIndex: _selectedDay,
+                  onSelected: (index) => setState(() => _selectedDay = index),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  DateFormat('EEEE, d MMMM').format(selected),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                entries.when(
+                  loading: () => const _PlanLoading(),
+                  error: (_, _) =>
+                      _PlanError(onRetry: () => ref.invalidate(planProvider)),
+                  data: (items) {
+                    final scheduled = _forDay(items, selected);
+                    if (scheduled.isEmpty) return const _PlanEmpty();
+                    return Column(
+                      children: [
+                        for (final item in scheduled) ...[
+                          _MealCard(
+                            item: item,
+                            onOpen: () => _showMealDetail(context, item),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
                       ],
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              OutlinedButton.icon(
-                onPressed: () => _showAddMeal(context, selected),
-                icon: const Icon(Icons.add_circle_outline),
-                label: const Text('Add meal'),
-              ),
-            ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                OutlinedButton.icon(
+                  onPressed: () => _showAddMeal(context, selected),
+                  icon: const Icon(Icons.add_circle_outline),
+                  label: const Text('Add meal'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

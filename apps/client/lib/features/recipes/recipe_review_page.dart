@@ -8,8 +8,11 @@ import '../shared/sticker_chip.dart';
 
 class RecipeReviewPage extends ConsumerStatefulWidget {
   /// Pops with `true` once the review is saved.
-  const RecipeReviewPage({super.key, required this.recipeId});
-  final String recipeId;
+  const RecipeReviewPage({super.key, required this.recipeId})
+    : creating = false;
+  const RecipeReviewPage.create({super.key}) : recipeId = null, creating = true;
+  final String? recipeId;
+  final bool creating;
 
   @override
   ConsumerState<RecipeReviewPage> createState() => _RecipeReviewPageState();
@@ -24,7 +27,38 @@ class _RecipeReviewPageState extends ConsumerState<RecipeReviewPage> {
   @override
   void initState() {
     super.initState();
-    _load();
+    if (widget.creating) {
+      _review = RecipeReview(
+        id: '',
+        title: '',
+        readiness: 'NEEDS_REVIEW',
+        revision: '',
+        originalServings: '',
+        yieldWording: '',
+        ingredients: [
+          RecipeReviewIngredient(
+            name: '',
+            quantityMin: '',
+            quantityMax: '',
+            originalUnit: '',
+            preparationNote: '',
+            classification: 'REQUIRED',
+            includeInShopping: true,
+            originalText: '',
+          ),
+        ],
+        instructions: [''],
+        completeness: const RecipeCompleteness(
+          extracted: 0,
+          manual: 0,
+          missing: 100,
+        ),
+        evidence: const [],
+      );
+      _loading = false;
+    } else {
+      _load();
+    }
   }
 
   Future<void> _load() async {
@@ -35,7 +69,7 @@ class _RecipeReviewPageState extends ConsumerState<RecipeReviewPage> {
     try {
       final review = await ref
           .read(sessionRepositoryProvider)
-          .recipeReview(widget.recipeId);
+          .recipeReview(widget.recipeId!);
       if (mounted) setState(() => _review = review);
     } catch (error) {
       if (mounted) setState(() => _error = error);
@@ -60,15 +94,17 @@ class _RecipeReviewPageState extends ConsumerState<RecipeReviewPage> {
     }
     setState(() => _saving = true);
     try {
-      final saved = await ref
-          .read(sessionRepositoryProvider)
-          .saveRecipeReview(review);
+      final saved = widget.creating
+          ? await ref.read(sessionRepositoryProvider).createRecipe(review)
+          : await ref.read(sessionRepositoryProvider).saveRecipeReview(review);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             saved.readiness == 'SHOPPING_READY'
                 ? 'Recipe is ready for shopping.'
+                : widget.creating
+                ? 'Recipe created.'
                 : 'Review saved.',
           ),
         ),
@@ -92,13 +128,16 @@ class _RecipeReviewPageState extends ConsumerState<RecipeReviewPage> {
   Widget build(BuildContext context) {
     final review = _review;
     return Scaffold(
-      appBar: AppBar(title: const Text('Review recipe')),
+      appBar: AppBar(
+        title: Text(widget.creating ? 'Create recipe' : 'Review recipe'),
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : review == null
           ? _LoadFailure(error: _error, onRetry: _load)
           : _ReviewForm(
               review: review,
+              creating: widget.creating,
               saving: _saving,
               onChanged: () => setState(() {}),
               onSave: _save,
@@ -110,11 +149,13 @@ class _RecipeReviewPageState extends ConsumerState<RecipeReviewPage> {
 class _ReviewForm extends StatelessWidget {
   const _ReviewForm({
     required this.review,
+    required this.creating,
     required this.saving,
     required this.onChanged,
     required this.onSave,
   });
   final RecipeReview review;
+  final bool creating;
   final bool saving;
   final VoidCallback onChanged;
   final VoidCallback onSave;
@@ -134,29 +175,32 @@ class _ReviewForm extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
             children: [
               Text(
-                'Check the details',
+                creating ? 'Make it yours' : 'Check the details',
                 style: Theme.of(context).textTheme.displaySmall,
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Keep what was found, correct what is uncertain, then save a new recipe version.',
+              Text(
+                creating
+                    ? 'Add the ingredients and steps your household actually uses.'
+                    : 'Keep what was found, correct what is uncertain, then save a new recipe version.',
               ),
               const SizedBox(height: 20),
-              _CompletenessMeter(completeness: review.completeness),
-              const SizedBox(height: 20),
+              if (!creating) ...[
+                _CompletenessMeter(completeness: review.completeness),
+                const SizedBox(height: 20),
+              ],
               if (wide)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(flex: 3, child: editor),
                     const SizedBox(width: 24),
-                    SizedBox(width: 300, child: evidence),
+                    if (!creating) SizedBox(width: 300, child: evidence),
                   ],
                 )
               else ...[
                 editor,
-                const SizedBox(height: 20),
-                evidence,
+                if (!creating) ...[const SizedBox(height: 20), evidence],
               ],
               const SizedBox(height: 24),
               FilledButton.icon(
@@ -167,7 +211,11 @@ class _ReviewForm extends StatelessWidget {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.check_circle_outline),
-                label: Text(saving ? 'Saving review…' : 'Save recipe review'),
+                label: Text(
+                  saving
+                      ? (creating ? 'Creating recipe…' : 'Saving review…')
+                      : (creating ? 'Create recipe' : 'Save recipe review'),
+                ),
               ),
             ],
           ),

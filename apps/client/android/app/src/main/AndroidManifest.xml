@@ -25,6 +25,17 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Makes PantryPal a share target for recipe links. Instagram and
+                 TikTok both hand over the reel/video URL as text/plain, which
+                 SharedLinkIngest turns into a url import. Relies on the
+                 singleTop launchMode above: a share into the already-running
+                 app arrives via onNewIntent instead of stacking a second
+                 MainActivity. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
