@@ -24,6 +24,7 @@ import {
 } from './shopping-estimate';
 import {
   CreateShoppingTripDto,
+  CreateShoppingItemDto,
   UpdateShoppingItemDto,
   UpdateShoppingTripDto,
 } from './trips.dto';
@@ -333,6 +334,51 @@ export class TripsService {
     return presented;
   }
 
+  async createManualItem(
+    accountId: string,
+    householdId: string,
+    tripId: string,
+    input: CreateShoppingItemDto,
+  ) {
+    await this.access.requireActiveMembership(accountId, householdId);
+    const trip = await this.prisma.shoppingTrip.findFirst({
+      where: { id: tripId, householdId },
+    });
+    if (!trip)
+      throw new NotFoundException('Shopping trip not found in this household.');
+    const openStatuses: TripStatus[] = [
+      TripStatus.PROPOSED,
+      TripStatus.CONFIRMED,
+      TripStatus.IN_PROGRESS,
+    ];
+    if (!openStatuses.includes(trip.status))
+      throw new ConflictException(
+        'Items can only be added to an open shopping trip.',
+      );
+    const displayName = input.displayName.trim();
+    const canonical = await this.ingredients.resolveIngredients([displayName]);
+    const item = await this.prisma.shoppingItem.create({
+      data: {
+        householdId,
+        shoppingTripId: tripId,
+        displayName,
+        canonicalIngredientId:
+          canonical.get(normalizeIngredientName(displayName)) ?? null,
+        demand: [],
+        unmeasured: true,
+        manualEntry: true,
+        status: ShoppingItemStatus.NEED_TO_BUY,
+      },
+    });
+    void this.ingredients.requestProfiles([...new Set(canonical.values())]);
+    await this.record(accountId, householdId, item.id, 'shopping_item.created', {
+      tripId,
+      displayName,
+    });
+    const [presented] = await this.presentItems(householdId, [item]);
+    return presented;
+  }
+
   async refreshDemand(accountId: string, householdId: string, tripId: string) {
     const canonicalIds: string[] = [];
     const invalidated = await this.prisma.$transaction(async (tx) => {
@@ -359,14 +405,15 @@ export class TripsService {
         where: { householdId, shoppingTripId: trip.id },
         orderBy: { createdAt: 'asc' },
       });
-      const existingByKey = new Map<string, typeof existing>();
-      for (const row of existing) {
+      const automaticExisting = existing.filter((row) => !row.manualEntry);
+      const existingByKey = new Map<string, typeof automaticExisting>();
+      for (const row of automaticExisting) {
         const key = normalizeIngredientName(row.displayName);
         existingByKey.set(key, [...(existingByKey.get(key) ?? []), row]);
       }
       const currentKeys = new Set(aggregate.map((item) => item.key));
       const removed = [
-        ...existing.filter(
+        ...automaticExisting.filter(
           (row) => !currentKeys.has(normalizeIngredientName(row.displayName)),
         ),
         ...[...existingByKey.entries()]

@@ -1,0 +1,1 @@
+ALTER TABLE "ShoppingItem" ADD COLUMN "manualEntry" BOOLEAN NOT NULL DEFAULT false;

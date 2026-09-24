@@ -55,7 +55,7 @@ export class ReviewIngredientDto {
   includeInShopping!: boolean;
 }
 
-export class SaveRecipeReviewDto {
+export class RecipeInputDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -83,6 +83,11 @@ export class SaveRecipeReviewDto {
   @IsString({ each: true })
   instructions!: string[];
 
+}
+
+export class CreateRecipeDto extends RecipeInputDto {}
+
+export class SaveRecipeReviewDto extends RecipeInputDto {
   @ApiProperty()
   @IsString()
   expectedRevision!: string;

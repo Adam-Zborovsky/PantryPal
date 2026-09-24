@@ -359,6 +359,20 @@ class SessionRepository {
     return RecipeReview.fromJson(response.data ?? const {});
   }
 
+  Future<RecipeReview> createRecipe(RecipeReview recipe) async {
+    final token = await accessToken();
+    final household = await householdId();
+    if (token == null || household == null) {
+      throw StateError('Your household session is unavailable. Sign in again.');
+    }
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/households/$household/recipes',
+      data: recipe.toCreateJson(),
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    return RecipeReview.fromJson(response.data ?? const {});
+  }
+
   Future<List<HouseholdCollectionItem>> cookingInstances() =>
       _householdCollection('/cooking');
 
@@ -382,6 +396,13 @@ class SessionRepository {
     required String itemId,
     required String status,
   }) => _householdPatch('/trips/$tripId/items/$itemId', {'status': status});
+
+  Future<void> addShoppingItem({
+    required String tripId,
+    required String displayName,
+  }) => _householdPost('/trips/$tripId/items', {
+    'displayName': displayName.trim(),
+  });
 
   Future<void> markNotificationRead(String notificationId) =>
       _householdPost('/notifications/$notificationId/read');
@@ -665,6 +686,16 @@ class RecipeReview {
     'ingredients': ingredients.map((item) => item.toJson()).toList(),
     'instructions': instructions,
     'expectedRevision': revision,
+  };
+
+  Map<String, dynamic> toCreateJson() => {
+    'title': title.trim(),
+    'originalServings': originalServings.trim().isEmpty
+        ? null
+        : originalServings.trim(),
+    'yieldWording': yieldWording.trim().isEmpty ? null : yieldWording.trim(),
+    'ingredients': ingredients.map((item) => item.toJson()).toList(),
+    'instructions': instructions,
   };
 }
 

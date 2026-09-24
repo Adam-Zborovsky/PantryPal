@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateShoppingTripDto {
   @ApiPropertyOptional({
@@ -30,4 +30,12 @@ export class UpdateShoppingItemDto {
   status!: (typeof shoppingStatuses)[number];
   @ApiPropertyOptional() @IsOptional() @IsString() knownQuantity?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() unit?: string;
+}
+
+export class CreateShoppingItemDto {
+  @ApiProperty({ description: 'A household item to add to this shopping trip.' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(120)
+  displayName!: string;
 }

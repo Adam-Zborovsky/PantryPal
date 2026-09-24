@@ -377,6 +377,7 @@ model ShoppingItem {
   displayName          String
   demand               Json               @default("[]")
   unmeasured           Boolean            @default(false)
+  manualEntry          Boolean            @default(false)
   status               ShoppingItemStatus @default(NEED_TO_BUY)
   revision             Int                @default(1)
   createdAt            DateTime           @default(now())

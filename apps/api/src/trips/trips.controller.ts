@@ -13,6 +13,7 @@ import { AccessTokenGuard } from '../auth/access-token.guard';
 import type { AuthenticatedRequest } from '../auth/auth.types';
 import {
   CreateShoppingTripDto,
+  CreateShoppingItemDto,
   UpdateShoppingItemDto,
   UpdateShoppingTripDto,
 } from './trips.dto';
@@ -79,6 +80,20 @@ export class TripsController {
     @Param('tripId') tripId: string,
   ) {
     return this.trips.cancel(request.user.sub, householdId, tripId);
+  }
+  @Post(':tripId/items')
+  createItem(
+    @Req() request: AuthenticatedRequest,
+    @Param('householdId') householdId: string,
+    @Param('tripId') tripId: string,
+    @Body() input: CreateShoppingItemDto,
+  ) {
+    return this.trips.createManualItem(
+      request.user.sub,
+      householdId,
+      tripId,
+      input,
+    );
   }
   @Patch(':tripId/items/:itemId') updateItem(
     @Req() request: AuthenticatedRequest,

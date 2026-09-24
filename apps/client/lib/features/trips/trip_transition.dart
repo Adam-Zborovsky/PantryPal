@@ -18,6 +18,11 @@ Future<bool> confirmShoppingTripTransition(
       'The shared list becomes the active shopping run.',
       'Start shopping',
     ),
+    'cancel' => (
+      'Cancel this shopping trip?',
+      'The trip will be kept in household history and any automatic meal assignments will be recalculated.',
+      'Cancel trip',
+    ),
     _ => (
       'Complete this shopping trip?',
       'The trip closes as completed.',

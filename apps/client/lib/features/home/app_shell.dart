@@ -90,6 +90,7 @@ class AppShell extends ConsumerWidget {
                 destination: destinations[selected],
                 activeImport: activeImport,
                 onImport: () => _showImport(context),
+                onCreateRecipe: () => _createRecipe(context, ref),
                 onOpenImportReview: (recipeId) =>
                     _openImportReview(context, ref, recipeId),
               ),
@@ -267,6 +268,16 @@ class AppShell extends ConsumerWidget {
       isScrollControlled: true,
       builder: (_) => const _ImportSheet(),
     );
+  }
+
+  Future<void> _createRecipe(BuildContext context, WidgetRef ref) async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const RecipeReviewPage.create()),
+    );
+    if (saved != true) return;
+    ref.invalidate(householdCollectionProvider('Recipes'));
+    ref.read(selectedDestinationProvider.notifier).state = destinations
+        .indexWhere((destination) => destination.label == 'Recipes');
   }
 }
 
@@ -622,11 +633,13 @@ class _Body extends ConsumerWidget {
     required this.destination,
     required this.activeImport,
     required this.onImport,
+    required this.onCreateRecipe,
     required this.onOpenImportReview,
   });
   final _Destination destination;
   final ImportJobSummary? activeImport;
   final VoidCallback onImport;
+  final VoidCallback onCreateRecipe;
   final ValueChanged<String> onOpenImportReview;
 
   @override
@@ -635,74 +648,96 @@ class _Body extends ConsumerWidget {
     if (destination.label == 'Plan') return const PlanPage();
     if (destination.label == 'Shop') return const ShopPage();
     if (destination.label == 'Archive') return const ArchivePage();
+    Future<void> refresh() async {
+      if (!home) {
+        ref.invalidate(householdCollectionProvider(destination.label));
+        await ref.read(householdCollectionProvider(destination.label).future);
+      }
+    }
+
     return SafeArea(
       top: false,
       child: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            children: [
-              Text(
-                home ? 'Good food, clearly planned.' : destination.label,
-                style: Theme.of(context).textTheme.displaySmall,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                home
-                    ? 'Bring a recipe. Choose the servings. Know exactly what the household needs.'
-                    : '${destination.label} is ready for your household data.',
-              ),
-              const SizedBox(height: 24),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        home ? Icons.kitchen_outlined : destination.icon,
-                        size: 40,
-                        color: PantryPalTheme.tomato,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        home
-                            ? 'Your kitchen is clear'
-                            : '${destination.label}, at a glance',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        home
-                            ? 'Import a recipe to review it, save a Quick Cook, or plan your next meal.'
-                            : _destinationDescription(destination.label),
-                      ),
-                      if (home) ...[
-                        const SizedBox(height: 20),
-                        FilledButton.icon(
-                          onPressed: onImport,
-                          icon: const Icon(Icons.add_link),
-                          label: const Text('Import a recipe'),
+          child: RefreshIndicator(
+            onRefresh: refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              children: [
+                Text(
+                  home ? 'Good food, clearly planned.' : destination.label,
+                  style: Theme.of(context).textTheme.displaySmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  home
+                      ? 'Bring a recipe. Choose the servings. Know exactly what the household needs.'
+                      : '${destination.label} is ready for your household data.',
+                ),
+                const SizedBox(height: 24),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          home ? Icons.kitchen_outlined : destination.icon,
+                          size: 40,
+                          color: PantryPalTheme.tomato,
                         ),
+                        const SizedBox(height: 16),
+                        Text(
+                          home
+                              ? 'Your kitchen is clear'
+                              : '${destination.label}, at a glance',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          home
+                              ? 'Import a recipe to review it, save a Quick Cook, or plan your next meal.'
+                              : _destinationDescription(destination.label),
+                        ),
+                        if (home) ...[
+                          const SizedBox(height: 20),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: [
+                              FilledButton.icon(
+                                onPressed: onImport,
+                                icon: const Icon(Icons.add_link),
+                                label: const Text('Import a recipe'),
+                              ),
+                              OutlinedButton.icon(
+                                onPressed: onCreateRecipe,
+                                icon: const Icon(Icons.edit_note_outlined),
+                                label: const Text('Create recipe'),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
-              ),
-              if (!home) ...[
-                const SizedBox(height: 16),
-                _CollectionSection(kind: destination.label),
+                if (!home) ...[
+                  const SizedBox(height: 16),
+                  _CollectionSection(kind: destination.label),
+                ],
+                if (home && activeImport != null) ...[
+                  const SizedBox(height: 16),
+                  ActiveImportCard(
+                    job: activeImport!,
+                    onOpenReview: onOpenImportReview,
+                  ),
+                ],
               ],
-              if (home && activeImport != null) ...[
-                const SizedBox(height: 16),
-                ActiveImportCard(
-                  job: activeImport!,
-                  onOpenReview: onOpenImportReview,
-                ),
-              ],
-            ],
+            ),
           ),
         ),
       ),

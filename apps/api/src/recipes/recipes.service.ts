@@ -10,7 +10,7 @@ import { HouseholdAccessService } from '../households/household-access.service';
 import { IngredientProfileService } from '../ingredients/ingredient-profile.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { normalizeIngredientName, parseUnit } from './units';
-import { SaveRecipeReviewDto } from './recipes.dto';
+import { CreateRecipeDto, RecipeInputDto, SaveRecipeReviewDto } from './recipes.dto';
 
 type ReviewIngredient = {
   name: string;
@@ -45,6 +45,104 @@ export class RecipesService {
       currentVersionId: recipe.currentVersionId,
       updatedAt: recipe.updatedAt.toISOString(),
     }));
+  }
+
+  async create(
+    accountId: string,
+    householdId: string,
+    input: CreateRecipeDto,
+  ) {
+    await this.access.requireActiveMembership(accountId, householdId);
+    this.assertDecimalInput(input);
+    const normalized = input.ingredients.map((item) =>
+      this.normalizeIngredient(item),
+    );
+    const canonicalIds = await this.ingredients.resolveIngredients(
+      normalized.map((item) => item.name),
+    );
+    const readiness = this.readiness(
+      input.title,
+      input.originalServings ?? null,
+      normalized,
+      input.instructions,
+    );
+    const recipe = await this.prisma.$transaction(async (tx) => {
+      const recipe = await tx.recipe.create({
+        data: { householdId, title: input.title.trim(), readiness },
+      });
+      const version = await tx.recipeVersion.create({
+        data: {
+          householdId,
+          recipeId: recipe.id,
+          version: 1,
+          title: input.title.trim(),
+          originalServings: this.decimalOrNull(input.originalServings),
+          yieldWording: this.emptyToNull(input.yieldWording),
+          readiness,
+          snapshot: {
+            manualFields: [
+              'recipe.title',
+              'recipe.originalServings',
+              ...normalized.flatMap((_, index) => [
+                `ingredients[${index}].name`,
+                `ingredients[${index}].amount`,
+              ]),
+              'instructions',
+            ],
+          } as Prisma.InputJsonValue,
+          createdByAccountId: accountId,
+        },
+      });
+      await tx.recipeIngredient.createMany({
+        data: normalized.map((item, sortOrder) => ({
+          householdId,
+          recipeVersionId: version.id,
+          name: item.name,
+          canonicalIngredientId:
+            canonicalIds.get(normalizeIngredientName(item.name)) ?? null,
+          normalizedUnit: item.originalUnit?.trim()
+            ? parseUnit(item.originalUnit).token
+            : null,
+          quantityMin: this.decimalOrNull(item.quantityMin),
+          quantityMax: this.decimalOrNull(item.quantityMax),
+          originalUnit: this.emptyToNull(item.originalUnit),
+          preparationNote: this.emptyToNull(item.preparationNote),
+          originalText: this.ingredientText(item),
+          classification: item.classification,
+          includeInShopping: item.includeInShopping,
+          inferred: false,
+          sortOrder,
+        })),
+      });
+      await tx.recipeInstruction.createMany({
+        data: input.instructions
+            .map((body, sortOrder) => ({
+              householdId,
+              recipeVersionId: version.id,
+              body: body.trim(),
+              sortOrder,
+            }))
+            .filter((item) => item.body),
+      });
+      return tx.recipe.update({
+        where: { id: recipe.id },
+        data: { currentVersionId: version.id },
+      });
+    });
+    void this.ingredients.requestProfiles([...new Set(canonicalIds.values())]);
+    const account = await this.prisma.account.findUniqueOrThrow({
+      where: { id: accountId },
+      select: { displayName: true },
+    });
+    await this.activity.record(
+      householdId,
+      { accountId, displayName: account.displayName },
+      'recipe',
+      recipe.id,
+      'recipe.created',
+      { readiness },
+    );
+    return this.review(accountId, householdId, recipe.id);
   }
 
   async review(accountId: string, householdId: string, recipeId: string) {
@@ -389,7 +487,7 @@ export class RecipesService {
   }
 
   private normalizeIngredient(
-    item: SaveRecipeReviewDto['ingredients'][number],
+    item: RecipeInputDto['ingredients'][number],
   ): ReviewIngredient {
     return {
       name: item.name.trim(),
@@ -402,7 +500,7 @@ export class RecipesService {
     };
   }
 
-  private assertDecimalInput(input: SaveRecipeReviewDto) {
+  private assertDecimalInput(input: RecipeInputDto) {
     if (
       input.originalServings != null &&
       !this.isPositiveDecimal(input.originalServings)

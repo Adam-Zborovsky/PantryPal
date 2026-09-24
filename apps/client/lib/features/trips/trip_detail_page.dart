@@ -9,6 +9,7 @@ import '../shared/scheduling.dart';
 import 'shopping_amounts.dart';
 import 'shopping_item_breakdown.dart';
 import 'shopping_item_status.dart';
+import 'shop_page.dart' show showAddShoppingItemSheet;
 import 'trip_transition.dart';
 
 class TripDetailPage extends ConsumerStatefulWidget {
@@ -73,6 +74,17 @@ class _TripDetailPageState extends ConsumerState<TripDetailPage> {
     }
   }
 
+  Future<void> _refresh() async {
+    ref.invalidate(householdCollectionProvider('Shop'));
+    setState(() => _trip = _load());
+    await _trip;
+  }
+
+  Future<void> _addItem() async {
+    if (!await showAddShoppingItemSheet(context, tripId: widget.tripId)) return;
+    await _refresh();
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Shopping trip')),
@@ -108,32 +120,40 @@ class _TripDetailPageState extends ConsumerState<TripDetailPage> {
             : const <HouseholdCollectionItem>[];
         return SafeArea(
           top: false,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            children: [
-              _TripSummary(trip: trip, onTransition: _transition),
-              const SizedBox(height: 24),
-              Text(
-                'Shopping list',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              if (items.isEmpty)
-                const _TripEmpty()
-              else
-                Card(
-                  child: Column(
-                    children: [
-                      for (final item in items)
-                        _ShoppingItemTile(
-                          item: item,
-                          onChanged: (status) =>
-                              _updateItem(item.string('id')!, status),
-                        ),
-                    ],
-                  ),
+          child: RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              children: [
+                _TripSummary(
+                  trip: trip,
+                  onTransition: _transition,
+                  onAddItem: _addItem,
                 ),
-            ],
+                const SizedBox(height: 24),
+                Text(
+                  'Shopping list',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                if (items.isEmpty)
+                  const _TripEmpty()
+                else
+                  Card(
+                    child: Column(
+                      children: [
+                        for (final item in items)
+                          _ShoppingItemTile(
+                            item: item,
+                            onChanged: (status) =>
+                                _updateItem(item.string('id')!, status),
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },
@@ -142,9 +162,14 @@ class _TripDetailPageState extends ConsumerState<TripDetailPage> {
 }
 
 class _TripSummary extends StatelessWidget {
-  const _TripSummary({required this.trip, required this.onTransition});
+  const _TripSummary({
+    required this.trip,
+    required this.onTransition,
+    required this.onAddItem,
+  });
   final HouseholdCollectionItem trip;
   final ValueChanged<String> onTransition;
+  final VoidCallback onAddItem;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -200,6 +225,32 @@ class _TripSummary extends StatelessWidget {
                     onPressed: () => onTransition(action),
                     icon: Icon(_nextActionIcon(action)),
                     label: Text(_nextActionLabel(action)),
+                  ),
+                ],
+                if ([
+                  'PROPOSED',
+                  'CONFIRMED',
+                  'IN_PROGRESS',
+                ].contains(trip.string('status'))) ...[
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    onPressed: onAddItem,
+                    icon: const Icon(Icons.add_shopping_cart_outlined),
+                    label: const Text('Add item'),
+                  ),
+                ],
+                if ([
+                  'PROPOSED',
+                  'CONFIRMED',
+                ].contains(trip.string('status'))) ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => onTransition('cancel'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: PantryPalTheme.tomato,
+                    ),
+                    icon: const Icon(Icons.cancel_outlined),
+                    label: const Text('Cancel trip'),
                   ),
                 ],
               ],

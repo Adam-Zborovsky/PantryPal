@@ -32,6 +32,11 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
     _month = DateTime(today.year, today.month);
   }
 
+  Future<void> _refresh() async {
+    ref.invalidate(archiveProvider);
+    await ref.read(archiveProvider.future);
+  }
+
   @override
   Widget build(BuildContext context) {
     final archive = ref.watch(archiveProvider);
@@ -41,23 +46,30 @@ class _ArchivePageState extends ConsumerState<ArchivePage> {
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            children: [
-              Text('Archive', style: Theme.of(context).textTheme.displaySmall),
-              const SizedBox(height: 4),
-              const Text(
-                'Your cooked meals stay intact, ready when you need them.',
-              ),
-              const SizedBox(height: 20),
-              archive.when(
-                loading: () => const _ArchiveLoading(),
-                error: (_, _) => _ArchiveError(
-                  onRetry: () => ref.invalidate(archiveProvider),
+          child: RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              children: [
+                Text(
+                  'Archive',
+                  style: Theme.of(context).textTheme.displaySmall,
                 ),
-                data: _buildArchive,
-              ),
-            ],
+                const SizedBox(height: 4),
+                const Text(
+                  'Your cooked meals stay intact, ready when you need them.',
+                ),
+                const SizedBox(height: 20),
+                archive.when(
+                  loading: () => const _ArchiveLoading(),
+                  error: (_, _) => _ArchiveError(
+                    onRetry: () => ref.invalidate(archiveProvider),
+                  ),
+                  data: _buildArchive,
+                ),
+              ],
+            ),
           ),
         ),
       ),

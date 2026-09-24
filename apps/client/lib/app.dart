@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'features/auth/auth_page.dart';
 import 'features/auth/session_repository.dart';
 import 'features/home/app_shell.dart';
+import 'features/home/shared_link_ingest.dart';
 
 final authenticatedProvider = StateProvider<bool>((ref) => false);
 final sessionRestoreProvider = FutureProvider<bool>(
@@ -33,11 +34,16 @@ class _PantryPalMaterialApp extends ConsumerWidget {
       theme: PantryPalTheme.light(),
       darkTheme: PantryPalTheme.dark(),
       themeMode: ThemeMode.system,
-      home: restored.when(
-        loading: () => const _SessionRestoring(),
-        error: (_, _) => const AuthPage(),
-        data: (hasSession) =>
-            authenticated || hasSession ? const AppShell() : const AuthPage(),
+      // Wraps the auth branch rather than sitting inside it: a share can
+      // cold-start the app straight onto sign-in, and the ingest still needs
+      // to answer it there.
+      home: SharedLinkIngest(
+        child: restored.when(
+          loading: () => const _SessionRestoring(),
+          error: (_, _) => const AuthPage(),
+          data: (hasSession) =>
+              authenticated || hasSession ? const AppShell() : const AuthPage(),
+        ),
       ),
     );
   }
