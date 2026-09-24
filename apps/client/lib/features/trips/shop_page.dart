@@ -255,6 +255,19 @@ class _TripShoppingView extends ConsumerWidget {
                           ? 'Bought elsewhere'
                           : 'Removed from trip',
                     ),
+                    trailing: TextButton.icon(
+                      onPressed: () async {
+                        await ref
+                            .read(sessionRepositoryProvider)
+                            .restoreShoppingItem(
+                              tripId: id,
+                              itemId: item.string('id')!,
+                            );
+                        onChanged();
+                      },
+                      icon: const Icon(Icons.undo_outlined),
+                      label: const Text('Restore'),
+                    ),
                   ),
               ],
             ),
@@ -556,6 +569,8 @@ class _ShoppingItemRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final status = item.string('status') ?? 'NEED_TO_BUY';
     final pickedUp = item.string('pickedUpAt') != null;
+    final manualEntry = item.values['manualEntry'] == true;
+    final contributions = item.values['contributions'] as List? ?? const [];
     final presentation = shoppingItemStatus(status);
     return ExpansionTile(
       leading: Checkbox(
@@ -585,6 +600,11 @@ class _ShoppingItemRow extends ConsumerWidget {
       subtitle: Text(
         [
           shoppingItemSummary(item.values),
+          manualEntry
+              ? 'Household addition'
+              : contributions.length > 1
+              ? 'From ${contributions.length} recipes'
+              : 'From recipe',
           if (status != 'NEED_TO_BUY') presentation.label,
         ].where((part) => part.isNotEmpty).join(' · '),
         style: const TextStyle(fontFeatures: [FontFeature.tabularFigures()]),
@@ -649,11 +669,16 @@ class _ShoppingItemRow extends ConsumerWidget {
             ),
           const PopupMenuDivider(),
           const PopupMenuItem(value: 'EDIT_AMOUNT', child: Text('Edit amount')),
-          const PopupMenuItem(
-            value: 'BOUGHT_ELSEWHERE',
-            child: Text('Bought elsewhere'),
-          ),
-          const PopupMenuItem(value: 'REMOVE', child: Text('Remove from trip')),
+          if (manualEntry) ...[
+            const PopupMenuItem(
+              value: 'BOUGHT_ELSEWHERE',
+              child: Text('Bought elsewhere'),
+            ),
+            const PopupMenuItem(
+              value: 'REMOVE',
+              child: Text('Remove from trip'),
+            ),
+          ],
         ],
       ),
       children: [
@@ -754,7 +779,7 @@ void _showShoppingGuide(BuildContext context) {
     builder: (sheetContext) => SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

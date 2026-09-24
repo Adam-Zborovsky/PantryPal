@@ -427,6 +427,11 @@ class SessionRepository {
     'reason': reason,
   });
 
+  Future<void> restoreShoppingItem({
+    required String tripId,
+    required String itemId,
+  }) => _householdPost('/trips/$tripId/items/$itemId/restore');
+
   Future<void> markNotificationRead(String notificationId) =>
       _householdPost('/notifications/$notificationId/read');
 
