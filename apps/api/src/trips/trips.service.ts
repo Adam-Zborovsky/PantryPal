@@ -284,14 +284,16 @@ export class TripsService {
     input: UpdateShoppingItemDto,
   ) {
     await this.access.requireActiveMembership(accountId, householdId);
-    if (
-      input.knownQuantity &&
-      (!/^\d+(?:\.\d+)?$/.test(input.knownQuantity) ||
-        !new Prisma.Decimal(input.knownQuantity).gt(0))
-    )
+    for (const value of [input.knownQuantity, input.amount]) {
+      if (
+        value &&
+      (!/^\d+(?:\.\d+)?$/.test(value) ||
+          !new Prisma.Decimal(value).gt(0))
+      )
       throw new BadRequestException(
-        'Known quantity must be a positive decimal value.',
+        'Amounts must be positive decimal values.',
       );
+    }
     const item = await this.prisma.$transaction(async (tx) => {
       const item = await tx.shoppingItem.findFirst({
         where: { id: itemId, householdId, shoppingTripId: tripId },
@@ -302,7 +304,14 @@ export class TripsService {
         );
       const updated = await tx.shoppingItem.update({
         where: { id: item.id },
-        data: { status: input.status, revision: { increment: 1 } },
+        data: {
+          status: input.status,
+          ...(input.amount != null
+              ? { manualQuantity: new Prisma.Decimal(input.amount) }
+              : {}),
+          ...(input.unit != null ? { manualUnit: input.unit.trim() || null } : {}),
+          revision: { increment: 1 },
+        },
       });
       if (
         input.status === ShoppingItemStatus.CONFIRMED_AT_HOME ||
@@ -331,6 +340,47 @@ export class TripsService {
       { tripId, status: item.status },
     );
     const [presented] = await this.presentItems(householdId, [item]);
+    return presented;
+  }
+
+  async togglePickedUp(accountId: string, householdId: string, tripId: string, itemId: string) {
+    await this.access.requireActiveMembership(accountId, householdId);
+    const item = await this.prisma.shoppingItem.findFirst({
+      where: { id: itemId, householdId, shoppingTripId: tripId, archivedAt: null },
+    });
+    if (!item) throw new NotFoundException('Shopping item not found in this household trip.');
+    const pickedUp = item.pickedUpAt === null;
+    const updated = await this.prisma.shoppingItem.update({
+      where: { id: item.id },
+      data: {
+        pickedUpAt: pickedUp ? new Date() : null,
+        pickedUpByAccountId: pickedUp ? accountId : null,
+        revision: { increment: 1 },
+      },
+    });
+    await this.record(accountId, householdId, item.id, 'shopping_item.picked_up', { tripId, pickedUp });
+    const [presented] = await this.presentItems(householdId, [updated]);
+    return presented;
+  }
+
+  async archiveItem(
+    accountId: string,
+    householdId: string,
+    tripId: string,
+    itemId: string,
+    reason: 'BOUGHT_ELSEWHERE' | 'REMOVED',
+  ) {
+    await this.access.requireActiveMembership(accountId, householdId);
+    const item = await this.prisma.shoppingItem.findFirst({
+      where: { id: itemId, householdId, shoppingTripId: tripId, archivedAt: null },
+    });
+    if (!item) throw new NotFoundException('Shopping item not found in this household trip.');
+    const updated = await this.prisma.shoppingItem.update({
+      where: { id: item.id },
+      data: { archivedAt: new Date(), archivedReason: reason, revision: { increment: 1 } },
+    });
+    await this.record(accountId, householdId, item.id, 'shopping_item.archived', { tripId, reason });
+    const [presented] = await this.presentItems(householdId, [updated]);
     return presented;
   }
 
@@ -367,6 +417,8 @@ export class TripsService {
         demand: [],
         unmeasured: true,
         manualEntry: true,
+        manualQuantity: input.amount ? new Prisma.Decimal(input.amount) : null,
+        manualUnit: input.unit?.trim() || null,
         status: ShoppingItemStatus.NEED_TO_BUY,
       },
     });
@@ -898,6 +950,11 @@ export class TripsService {
       canonicalIngredientId: string | null;
       demand: Prisma.JsonValue;
       unmeasured: boolean;
+      manualQuantity: Prisma.Decimal | null;
+      manualUnit: string | null;
+      pickedUpAt: Date | null;
+      archivedAt: Date | null;
+      archivedReason: string | null;
       status: ShoppingItemStatus;
       revision: number;
     }>,
@@ -972,6 +1029,19 @@ export class TripsService {
         revision: item.revision,
         demand,
         unmeasured: item.unmeasured,
+        ...(item.manualQuantity
+          ? {
+              manualQuantity: item.manualQuantity.toString(),
+              manualUnit: item.manualUnit,
+            }
+          : {}),
+        ...(item.pickedUpAt ? { pickedUpAt: item.pickedUpAt.toISOString() } : {}),
+        ...(item.archivedAt
+          ? {
+              archivedAt: item.archivedAt.toISOString(),
+              archivedReason: item.archivedReason,
+            }
+          : {}),
         estimate: estimateShopping(demand, snapshot, alreadyHave),
         profileStatus: profile?.profileStatus ?? null,
         contributions: contributions

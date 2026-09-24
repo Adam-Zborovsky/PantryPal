@@ -30,6 +30,7 @@ export class UpdateShoppingItemDto {
   status!: (typeof shoppingStatuses)[number];
   @ApiPropertyOptional() @IsOptional() @IsString() knownQuantity?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() unit?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() amount?: string;
 }
 
 export class CreateShoppingItemDto {
@@ -38,4 +39,6 @@ export class CreateShoppingItemDto {
   @IsNotEmpty()
   @MaxLength(120)
   displayName!: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() amount?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() unit?: string;
 }

@@ -142,6 +142,12 @@ String estimateSummary(
 }
 
 String shoppingItemSummary(Map<String, Object?> item) {
+  final manualAmount = _number(item['manualQuantity']);
+  final manualUnit = item['manualUnit'];
+  if (manualAmount != null && manualUnit is String && manualUnit.isNotEmpty) {
+    return formatAmount(manualAmount, manualUnit);
+  }
+  if (manualAmount != null) return _trim(manualAmount, 2);
   final estimate = estimateFrom(item);
   if (estimate != null) {
     return estimateSummary(estimate, status: '${item['status'] ?? ''}');

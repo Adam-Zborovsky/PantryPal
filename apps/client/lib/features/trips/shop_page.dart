@@ -162,6 +162,15 @@ class _TripShoppingView extends ConsumerWidget {
         .whereType<Map>()
         .map(HouseholdCollectionItem.fromJson)
         .toList();
+    final activeItems = items
+        .where((item) => item.string('archivedAt') == null)
+        .toList();
+    final archivedItems = items
+        .where((item) => item.string('archivedAt') != null)
+        .toList();
+    final pickedUp = activeItems
+        .where((item) => item.string('pickedUpAt') != null)
+        .length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -179,11 +188,16 @@ class _TripShoppingView extends ConsumerWidget {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
+                    IconButton(
+                      tooltip: 'Shopping item guide',
+                      onPressed: () => _showShoppingGuide(context),
+                      icon: const Icon(Icons.info_outline),
+                    ),
                     _TripStatus(status: status),
                   ],
                 ),
                 const SizedBox(height: 6),
-                Text('${items.length} items · shared household list'),
+                Text('${activeItems.length} to manage · $pickedUp picked up'),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
                   onPressed: () => _showChangeDate(context, ref, id, onChanged),
@@ -211,13 +225,13 @@ class _TripShoppingView extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
-        if (items.isEmpty)
+        if (activeItems.isEmpty)
           const _TripItemsEmpty()
         else
           Card(
             child: Column(
               children: [
-                for (final item in items)
+                for (final item in activeItems)
                   _ShoppingItemRow(
                     item: item,
                     tripId: id,
@@ -226,6 +240,26 @@ class _TripShoppingView extends ConsumerWidget {
               ],
             ),
           ),
+        if (archivedItems.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Card(
+            child: ExpansionTile(
+              title: Text('Archived from this trip (${archivedItems.length})'),
+              subtitle: const Text('Bought elsewhere or removed'),
+              children: [
+                for (final item in archivedItems)
+                  ListTile(
+                    title: Text(item.string('displayName') ?? 'Shopping item'),
+                    subtitle: Text(
+                      item.string('archivedReason') == 'BOUGHT_ELSEWHERE'
+                          ? 'Bought elsewhere'
+                          : 'Removed from trip',
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 16),
         if (status == 'PROPOSED')
           FilledButton.icon(
@@ -393,11 +427,15 @@ class _AddShoppingItemSheet extends ConsumerStatefulWidget {
 
 class _AddShoppingItemSheetState extends ConsumerState<_AddShoppingItemSheet> {
   final _name = TextEditingController();
+  final _amount = TextEditingController();
+  final _unit = TextEditingController();
   var _saving = false;
 
   @override
   void dispose() {
     _name.dispose();
+    _amount.dispose();
+    _unit.dispose();
     super.dispose();
   }
 
@@ -412,7 +450,12 @@ class _AddShoppingItemSheetState extends ConsumerState<_AddShoppingItemSheet> {
     try {
       await ref
           .read(sessionRepositoryProvider)
-          .addShoppingItem(tripId: widget.tripId, displayName: _name.text);
+          .addShoppingItem(
+            tripId: widget.tripId,
+            displayName: _name.text,
+            amount: _amount.text,
+            unit: _unit.text,
+          );
       if (mounted) Navigator.of(context).pop(true);
     } on DioException {
       if (mounted) {
@@ -456,6 +499,33 @@ class _AddShoppingItemSheetState extends ConsumerState<_AddShoppingItemSheet> {
           ),
           onSubmitted: (_) => _saving ? null : _save(),
         ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _amount,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: const InputDecoration(
+                  labelText: 'Amount',
+                  hintText: '2',
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _unit,
+                decoration: const InputDecoration(
+                  labelText: 'Unit',
+                  hintText: 'packs',
+                ),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 20),
         FilledButton.icon(
           onPressed: _saving ? null : _save,
@@ -485,13 +555,33 @@ class _ShoppingItemRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = item.string('status') ?? 'NEED_TO_BUY';
+    final pickedUp = item.string('pickedUpAt') != null;
     final presentation = shoppingItemStatus(status);
     return ExpansionTile(
-      leading: Icon(
-        presentation.icon,
-        color: statusToneColor(context, presentation.colorRole),
+      leading: Checkbox(
+        value: pickedUp,
+        semanticLabel: pickedUp
+            ? 'Mark as still needed'
+            : 'Mark as picked up on this trip',
+        onChanged: (_) async {
+          await ref
+              .read(sessionRepositoryProvider)
+              .toggleShoppingItemPickedUp(
+                tripId: tripId,
+                itemId: item.string('id')!,
+              );
+          onChanged();
+        },
       ),
-      title: Text(item.string('displayName') ?? 'Shopping item'),
+      title: Text(
+        item.string('displayName') ?? 'Shopping item',
+        style: pickedUp
+            ? const TextStyle(
+                decoration: TextDecoration.lineThrough,
+                color: Colors.grey,
+              )
+            : null,
+      ),
       subtitle: Text(
         [
           shoppingItemSummary(item.values),
@@ -503,6 +593,24 @@ class _ShoppingItemRow extends ConsumerWidget {
         tooltip: 'Change item state',
         onSelected: (next) async {
           try {
+            if (next == 'EDIT_AMOUNT') {
+              if (await _editAmount(context, ref, tripId, item, status)) {
+                onChanged();
+              }
+              return;
+            }
+            if (next == 'BOUGHT_ELSEWHERE' || next == 'REMOVE') {
+              if (next == 'REMOVE' && !await _confirmRemoval(context)) return;
+              await ref
+                  .read(sessionRepositoryProvider)
+                  .archiveShoppingItem(
+                    tripId: tripId,
+                    itemId: item.string('id')!,
+                    reason: next == 'REMOVE' ? 'REMOVED' : 'BOUGHT_ELSEWHERE',
+                  );
+              onChanged();
+              return;
+            }
             await ref
                 .read(sessionRepositoryProvider)
                 .updateShoppingItem(
@@ -539,6 +647,13 @@ class _ShoppingItemRow extends ConsumerWidget {
                 ],
               ),
             ),
+          const PopupMenuDivider(),
+          const PopupMenuItem(value: 'EDIT_AMOUNT', child: Text('Edit amount')),
+          const PopupMenuItem(
+            value: 'BOUGHT_ELSEWHERE',
+            child: Text('Bought elsewhere'),
+          ),
+          const PopupMenuItem(value: 'REMOVE', child: Text('Remove from trip')),
         ],
       ),
       children: [
@@ -549,6 +664,105 @@ class _ShoppingItemRow extends ConsumerWidget {
       ],
     );
   }
+}
+
+Future<bool> _editAmount(
+  BuildContext context,
+  WidgetRef ref,
+  String tripId,
+  HouseholdCollectionItem item,
+  String status,
+) async {
+  final amount = TextEditingController(
+    text: item.string('manualQuantity') ?? '',
+  );
+  final unit = TextEditingController(text: item.string('manualUnit') ?? '');
+  final saved = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text('Edit ${item.string('displayName') ?? 'item'}'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: amount,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(labelText: 'Amount'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: unit,
+            decoration: const InputDecoration(labelText: 'Unit'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () async {
+            if (amount.text.trim().isEmpty) return;
+            await ref
+                .read(sessionRepositoryProvider)
+                .updateShoppingItem(
+                  tripId: tripId,
+                  itemId: item.string('id')!,
+                  status: status,
+                  amount: amount.text,
+                  unit: unit.text,
+                );
+            if (dialogContext.mounted) Navigator.pop(dialogContext, true);
+          },
+          child: const Text('Save amount'),
+        ),
+      ],
+    ),
+  );
+  amount.dispose();
+  unit.dispose();
+  return saved ?? false;
+}
+
+Future<bool> _confirmRemoval(BuildContext context) async =>
+    await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Remove this item from the trip?'),
+        content: const Text(
+          'It will leave the active list and remain in this trip’s history.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Keep item'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Remove item'),
+          ),
+        ],
+      ),
+    ) ??
+    false;
+
+void _showShoppingGuide(BuildContext context) {
+  showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('How this list works'),
+      content: const Text(
+        'Buy means it is still needed. After checking at home, choose Already have it, Got some, or Buy. Use the checkbox when you pick an item up on this trip. Bought elsewhere archives one item because it is no longer needed for this trip.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('Got it'),
+        ),
+      ],
+    ),
+  );
 }
 
 class _TripStatus extends StatelessWidget {
