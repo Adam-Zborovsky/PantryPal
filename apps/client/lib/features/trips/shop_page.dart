@@ -748,19 +748,111 @@ Future<bool> _confirmRemoval(BuildContext context) async =>
     false;
 
 void _showShoppingGuide(BuildContext context) {
-  showDialog<void>(
+  showModalBottomSheet<void>(
     context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: const Text('How this list works'),
-      content: const Text(
-        'Buy means it is still needed. After checking at home, choose Already have it, Got some, or Buy. Use the checkbox when you pick an item up on this trip. Bought elsewhere archives one item because it is no longer needed for this trip.',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialogContext),
-          child: const Text('Got it'),
+    showDragHandle: true,
+    builder: (sheetContext) => SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Your shopping-list key',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Each choice says what happened, so everyone stays on the same page.',
+            ),
+            const SizedBox(height: 20),
+            const _ShoppingGuideRow(
+              icon: Icons.add_shopping_cart_outlined,
+              title: 'Buy',
+              detail: 'Still needed for this trip.',
+              color: PantryPalTheme.tomato,
+            ),
+            const _ShoppingGuideRow(
+              icon: Icons.inventory_2_outlined,
+              title: 'Already have it',
+              detail: 'The household has enough at home.',
+              color: PantryPalTheme.green,
+            ),
+            const _ShoppingGuideRow(
+              icon: Icons.pie_chart_outline,
+              title: 'Got some',
+              detail: 'Edit the amount that is still needed.',
+              color: PantryPalTheme.amber,
+            ),
+            const _ShoppingGuideRow(
+              icon: Icons.check_box_outlined,
+              title: 'Picked up on this trip',
+              detail:
+                  'Check the box. The item stays visible and can be unchecked.',
+              color: PantryPalTheme.ink,
+            ),
+            const _ShoppingGuideRow(
+              icon: Icons.archive_outlined,
+              title: 'Bought elsewhere',
+              detail: 'Archives one item because it is no longer needed here.',
+              color: PantryPalTheme.green,
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () => Navigator.pop(sheetContext),
+              child: const Text('Got it'),
+            ),
+          ],
         ),
-      ],
+      ),
+    ),
+  );
+}
+
+class _ShoppingGuideRow extends StatelessWidget {
+  const _ShoppingGuideRow({
+    required this.icon,
+    required this.title,
+    required this.detail,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String title;
+  final String detail;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        border: Border.all(color: color, width: 1.5),
+        borderRadius: BorderRadius.circular(13),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 2),
+                  Text(detail),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     ),
   );
 }
