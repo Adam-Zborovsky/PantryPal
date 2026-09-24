@@ -378,6 +378,12 @@ model ShoppingItem {
   demand               Json               @default("[]")
   unmeasured           Boolean            @default(false)
   manualEntry          Boolean            @default(false)
+  manualQuantity       Decimal?           @db.Decimal(12, 3)
+  manualUnit           String?
+  pickedUpAt           DateTime?
+  pickedUpByAccountId  String?
+  archivedAt           DateTime?
+  archivedReason       String?
   status               ShoppingItemStatus @default(NEED_TO_BUY)
   revision             Int                @default(1)
   createdAt            DateTime           @default(now())

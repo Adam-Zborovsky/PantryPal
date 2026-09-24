@@ -110,4 +110,29 @@ export class TripsController {
       input,
     );
   }
+  @Post(':tripId/items/:itemId/picked-up')
+  pickedUp(
+    @Req() request: AuthenticatedRequest,
+    @Param('householdId') householdId: string,
+    @Param('tripId') tripId: string,
+    @Param('itemId') itemId: string,
+  ) {
+    return this.trips.togglePickedUp(request.user.sub, householdId, tripId, itemId);
+  }
+  @Post(':tripId/items/:itemId/archive')
+  archiveItem(
+    @Req() request: AuthenticatedRequest,
+    @Param('householdId') householdId: string,
+    @Param('tripId') tripId: string,
+    @Param('itemId') itemId: string,
+    @Body() input: { reason?: string },
+  ) {
+    return this.trips.archiveItem(
+      request.user.sub,
+      householdId,
+      tripId,
+      itemId,
+      input.reason === 'REMOVED' ? 'REMOVED' : 'BOUGHT_ELSEWHERE',
+    );
+  }
 }

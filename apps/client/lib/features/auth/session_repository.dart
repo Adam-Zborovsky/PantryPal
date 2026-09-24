@@ -395,13 +395,36 @@ class SessionRepository {
     required String tripId,
     required String itemId,
     required String status,
-  }) => _householdPatch('/trips/$tripId/items/$itemId', {'status': status});
+    String? amount,
+    String? unit,
+  }) => _householdPatch('/trips/$tripId/items/$itemId', {
+    'status': status,
+    if (amount?.isNotEmpty ?? false) 'amount': amount!,
+    if (unit?.isNotEmpty ?? false) 'unit': unit!,
+  });
 
   Future<void> addShoppingItem({
     required String tripId,
     required String displayName,
+    String? amount,
+    String? unit,
   }) => _householdPost('/trips/$tripId/items', {
     'displayName': displayName.trim(),
+    if (amount != null && amount.trim().isNotEmpty) 'amount': amount.trim(),
+    if (unit != null && unit.trim().isNotEmpty) 'unit': unit.trim(),
+  });
+
+  Future<void> toggleShoppingItemPickedUp({
+    required String tripId,
+    required String itemId,
+  }) => _householdPost('/trips/$tripId/items/$itemId/picked-up');
+
+  Future<void> archiveShoppingItem({
+    required String tripId,
+    required String itemId,
+    required String reason,
+  }) => _householdPost('/trips/$tripId/items/$itemId/archive', {
+    'reason': reason,
   });
 
   Future<void> markNotificationRead(String notificationId) =>

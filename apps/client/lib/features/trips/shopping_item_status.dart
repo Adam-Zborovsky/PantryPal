@@ -35,16 +35,6 @@ ShoppingItemStatusPresentation shoppingItemStatus(String status) =>
         icon: Icons.pie_chart_outline,
         colorRole: StatusColorRole.attention,
       ),
-      'PURCHASED' => const ShoppingItemStatusPresentation(
-        label: 'Bought',
-        icon: Icons.check_circle_outline,
-        colorRole: StatusColorRole.positive,
-      ),
-      'IGNORED' => const ShoppingItemStatusPresentation(
-        label: 'Skip',
-        icon: Icons.remove_circle_outline,
-        colorRole: StatusColorRole.neutral,
-      ),
       _ => const ShoppingItemStatusPresentation(
         label: 'Buy',
         icon: Icons.add_shopping_cart_outlined,
@@ -57,6 +47,4 @@ const shoppingItemStatuses = <String>[
   'CONFIRMED_AT_HOME',
   'CHECK_AGAIN',
   'PARTIALLY_AVAILABLE',
-  'PURCHASED',
-  'IGNORED',
 ];
